@@ -24,12 +24,13 @@ parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart 
 
 args = parser.parse_args()
 logger.info("Args: %s" % args)
+logger.setLevel(logging.DEBUG)
 
 
 #
 # TODO: 
 # sendUdpMessage(): Return a data structure with some parsng
-# Argument for the server to query
+# Argument for the query to make
 #
 
 def sendUdpMessage(message, address, port):
@@ -44,8 +45,38 @@ def sendUdpMessage(message, address, port):
     try:
         sock.sendto(binascii.unhexlify(message), server_address)
         data, _ = sock.recvfrom(4096)
+
+	logger.info("answer(): Request ID: %s" % binascii.hexlify(data[0:2]))
+	logger.info("answer(): Flags: %s" % binascii.hexlify(data[2:4]))
+	#
+	# Header flag bits:
+	#
+	# 0 - QR: 0 if query, 1 if answer
+	# 1-4 - Opcode: 0 is standard query, 1 is reverse query, 2 is server status request
+	# 5 - AA: ???
+	# 6 - TC: Has the message been truncated?
+	# 7 - RD: Set to 1 when recursion is desired
+	# 8 - RA: Is Recursion available on this DNS server?
+	# 9-11 - Z: ???
+	# 12-15 - RCODE: Result Code.  0 for no errors.
+	#
+	logger.debug("Header flag bits: %s %s" % (bin(ord(data[2])), bin(ord(data[3]))))
+
+	qr = (ord(data[2]) & 0b10000000) >> 7
+	aa = (ord(data[2]) & 0b01111000) >> 3
+	rd = (ord(data[2]) & 0b00000001)
+	ra = (ord(data[3]) & 0b10000000) >> 7
+	rcode = (ord(data[3]) & 0b00001111)
+	logger.info("Header: QR: %s AA: %s RD: %s RA: %s RCODE: %s" % (qr, aa, rd, ra, rcode))
+	
+	logger.info("answer(): Number of questions: %s" % binascii.hexlify(data[4:6]))
+	logger.info("answer(): Number of answers: %s" % binascii.hexlify(data[6:8]))
+	logger.info("answer(): Number of authority records: %s" % binascii.hexlify(data[8:10]))
+	logger.info("answer(): Number of additional records: %s" % binascii.hexlify(data[10:12]))
+
     finally:
         sock.close()
+
     return binascii.hexlify(data).decode("utf-8")
 
 
