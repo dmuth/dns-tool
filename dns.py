@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart 
 args = parser.parse_args()
 logger.info("Args: %s" % args)
 
+
 #
 # TODO: 
 # sendUdpMessage(): Return a data structure with some parsng
@@ -32,7 +33,7 @@ logger.info("Args: %s" % args)
 #
 
 def sendUdpMessage(message, address, port):
-    """send_udp_message sends a message to UDP server
+    """sendUdpMessage sends a message to UDP server
 
     message should be a hexadecimal encoded string
     """
@@ -49,7 +50,7 @@ def sendUdpMessage(message, address, port):
 
 
 def formatHex(hex):
-    """format_hex returns a pretty version of a hex string"""
+    """formatHex returns a pretty version of a hex string"""
     octets = [hex[i:i+2] for i in range(0, len(hex), 2)]
     pairs = [" ".join(octets[i:i+2]) for i in range(0, len(octets), 2)]
     return "\n".join(pairs)
