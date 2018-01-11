@@ -70,8 +70,15 @@ def sendUdpMessage(message, address, port):
 	ra = (ord(data[3]) & 0b10000000) >> 7
 	z  = (ord(data[3]) & 0b01110000) >> 4
 	rcode = (ord(data[3]) & 0b00001111)
+	
 	logger.info("Header: QR: %s AA: %s RD: %s RA: %s Z: %s RCODE: %s" % (
-		qr, binascii.hexlify(str(aa)), rd, ra, binascii.hexlify(str(z)), rcode))
+		binascii.hexlify(chr(qr)), 
+		binascii.hexlify(chr(aa)), 
+		binascii.hexlify(chr(rd)), 
+		binascii.hexlify(chr(ra)), 
+		binascii.hexlify(chr(z)), 
+		binascii.hexlify(chr(rcode))
+		))
 	
 	logger.info("answer(): Number of questions: %s" % binascii.hexlify(data[4:6]))
 	logger.info("answer(): Number of answers: %s" % binascii.hexlify(data[6:8]))
