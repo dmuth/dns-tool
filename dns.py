@@ -30,7 +30,9 @@ logger.setLevel(logging.DEBUG)
 #
 # TODO: 
 # sendUdpMessage(): Return a data structure with some parsng
-# Argument for the query to make
+# Argument for query to pass in
+# Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
+# Deconstruct Question section: put into a function for reusability with query
 #
 
 def sendUdpMessage(message, address, port):
@@ -68,7 +70,8 @@ def sendUdpMessage(message, address, port):
 	ra = (ord(data[3]) & 0b10000000) >> 7
 	z  = (ord(data[3]) & 0b01110000) >> 4
 	rcode = (ord(data[3]) & 0b00001111)
-	logger.info("Header: QR: %s AA: %s RD: %s RA: %s Z: %s RCODE: %s" % (qr, aa, rd, ra, z, rcode))
+	logger.info("Header: QR: %s AA: %s RD: %s RA: %s Z: %s RCODE: %s" % (
+		qr, binascii.hexlify(str(aa)), rd, ra, binascii.hexlify(str(z)), rcode))
 	
 	logger.info("answer(): Number of questions: %s" % binascii.hexlify(data[4:6]))
 	logger.info("answer(): Number of answers: %s" % binascii.hexlify(data[6:8]))
