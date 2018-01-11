@@ -57,7 +57,7 @@ def sendUdpMessage(message, address, port):
 	# 6 - TC: Has the message been truncated?
 	# 7 - RD: Set to 1 when recursion is desired
 	# 8 - RA: Is Recursion available on this DNS server?
-	# 9-11 - Z: ???
+	# 9-11 - Z: These reserved bits are always set to zero.
 	# 12-15 - RCODE: Result Code.  0 for no errors.
 	#
 	logger.debug("Header flag bits: %s %s" % (bin(ord(data[2])), bin(ord(data[3]))))
@@ -66,8 +66,9 @@ def sendUdpMessage(message, address, port):
 	aa = (ord(data[2]) & 0b01111000) >> 3
 	rd = (ord(data[2]) & 0b00000001)
 	ra = (ord(data[3]) & 0b10000000) >> 7
+	z  = (ord(data[3]) & 0b01110000) >> 4
 	rcode = (ord(data[3]) & 0b00001111)
-	logger.info("Header: QR: %s AA: %s RD: %s RA: %s RCODE: %s" % (qr, aa, rd, ra, rcode))
+	logger.info("Header: QR: %s AA: %s RD: %s RA: %s Z: %s RCODE: %s" % (qr, aa, rd, ra, z, rcode))
 	
 	logger.info("answer(): Number of questions: %s" % binascii.hexlify(data[4:6]))
 	logger.info("answer(): Number of answers: %s" % binascii.hexlify(data[6:8]))
