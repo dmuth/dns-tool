@@ -53,7 +53,7 @@ def sendUdpMessage(message, address, port):
 	#
 	# 0 - QR: 0 if query, 1 if answer
 	# 1-4 - Opcode: 0 is standard query, 1 is reverse query, 2 is server status request
-	# 5 - AA: ???
+	# 5 - AA: Is the answer authoritative?
 	# 6 - TC: Has the message been truncated?
 	# 7 - RD: Set to 1 when recursion is desired
 	# 8 - RA: Is Recursion available on this DNS server?
