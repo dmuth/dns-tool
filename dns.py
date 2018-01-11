@@ -27,12 +27,11 @@ logger.info("Args: %s" % args)
 
 #
 # TODO: 
-# send_udp_message -> sendUdpMessage()
 # sendUdpMessage(): Return a data structure with some parsng
 # Argument for the server to query
 #
 
-def send_udp_message(message, address, port):
+def sendUdpMessage(message, address, port):
     """send_udp_message sends a message to UDP server
 
     message should be a hexadecimal encoded string
@@ -49,7 +48,7 @@ def send_udp_message(message, address, port):
     return binascii.hexlify(data).decode("utf-8")
 
 
-def format_hex(hex):
+def formatHex(hex):
     """format_hex returns a pretty version of a hex string"""
     octets = [hex[i:i+2] for i in range(0, len(hex), 2)]
     pairs = [" ".join(octets[i:i+2]) for i in range(0, len(octets), 2)]
@@ -59,7 +58,7 @@ def format_hex(hex):
 message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
 "07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01"
 
-response = send_udp_message(message, "8.8.8.8", 53)
-print(format_hex(response))
+response = sendUdpMessage(message, "8.8.8.8", 53)
+print(formatHex(response))
 
 
