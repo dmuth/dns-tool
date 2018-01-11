@@ -5,9 +5,32 @@
 #
 
 
+import argparse
 import binascii
+import logging
 import socket
 
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
+logger = logging.getLogger()
+
+#
+# Parse our arguments.
+#
+parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart the result packets")
+#parser.add_argument("bucket")
+#parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
+#parser.add_argument("--filter", help = "Filename text to filter on")
+
+args = parser.parse_args()
+logger.info("Args: %s" % args)
+
+#
+# TODO: 
+# send_udp_message -> sendUdpMessage()
+# sendUdpMessage(): Return a data structure with some parsng
+# Argument for the server to query
+#
 
 def send_udp_message(message, address, port):
     """send_udp_message sends a message to UDP server
