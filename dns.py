@@ -90,7 +90,7 @@ def sendUdpMessage(message, address, port):
         sock.sendto(binascii.unhexlify(message), server_address)
         data, _ = sock.recvfrom(4096)
 
-	header = parseHeader(data)
+	header = parseHeader(data[0:12])
 	logger.info("Header: %s" % header)
 
 
