@@ -7,6 +7,7 @@
 
 import argparse
 import binascii
+import json
 import logging
 import socket
 
@@ -164,6 +165,8 @@ def parseAnswer(data):
 		retval["rddata_text"] = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
 			+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
 
+	retval["rddata"] = binascii.hexlify(retval["rddata"]).decode("utf-8")
+
 	return(retval)
 
 
@@ -207,7 +210,17 @@ def formatHex(hex):
 
 #
 # TODO: 
-# Argument for query to pass in
+#
+# Build query with functions
+#
+# Argument for question
+# How to handle NXDOMAIN?
+#
+# Argument for question type (CNAME, NS, etc.)
+# How to handle multiple answers? (NS, etc.)
+#
+# Argument for DNS server
+#
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 #
 
@@ -216,5 +229,9 @@ message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
 
 response = sendUdpMessage(message, "8.8.8.8", 53)
 #print(formatHex(response)) # Debugging
-print(response)
+#print(response)
+print(json.dumps(response, indent = 2))
+
+
+
 
