@@ -167,17 +167,14 @@ def parseAnswer(data):
 	return(retval)
 
 
-#
-# TODO: 
-# Argument for query to pass in
-# Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
-#
 def sendUdpMessage(message, address, port):
 	"""sendUdpMessage sends a message to UDP server
 
 	message should be a hexadecimal encoded string
 	"""
     
+	retval = {}
+
 	message = message.replace(" ", "").replace("\n", "")
 	server_address = (address, port)
 
@@ -187,21 +184,18 @@ def sendUdpMessage(message, address, port):
 		sock.sendto(binascii.unhexlify(message), server_address)
 		data, _ = sock.recvfrom(4096)
 
-		header = parseHeader(data[0:12])
-		logger.info("Header: %s" % header)
+		retval["header"] = parseHeader(data[0:12])
+		retval["question"] = parseQuestion(data[12:])
 
-		question = parseQuestion(data[12:])
-		logger.info("Question: %s" % question)
+		answer_index = 12 + retval["question"]["question_length"]
+		retval["answer"] = parseAnswer(data[answer_index:])
 
-		answer_index = 12 + question["question_length"]
-
-		answer = parseAnswer(data[answer_index:])
-		logger.info("Answer: %s" % answer)
+		retval["raw"] = binascii.hexlify(data).decode("utf-8")
 
 	finally:
 		sock.close()
 
-	return binascii.hexlify(data).decode("utf-8")
+	return(retval)
 
 
 def formatHex(hex):
@@ -211,10 +205,16 @@ def formatHex(hex):
 	return "\n".join(pairs)
 
 
+#
+# TODO: 
+# Argument for query to pass in
+# Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
+#
+
 message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
 "07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01"
 
 response = sendUdpMessage(message, "8.8.8.8", 53)
-print(formatHex(response))
-
+#print(formatHex(response)) # Debugging
+print(response)
 
