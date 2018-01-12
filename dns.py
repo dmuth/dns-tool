@@ -169,45 +169,46 @@ def parseAnswer(data):
 
 #
 # TODO: 
-# sendUdpMessage(): Return a data structure with some parsing
 # Argument for query to pass in
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 #
 def sendUdpMessage(message, address, port):
-    """sendUdpMessage sends a message to UDP server
+	"""sendUdpMessage sends a message to UDP server
 
-    message should be a hexadecimal encoded string
-    """
-    message = message.replace(" ", "").replace("\n", "")
-    server_address = (address, port)
+	message should be a hexadecimal encoded string
+	"""
+    
+	message = message.replace(" ", "").replace("\n", "")
+	server_address = (address, port)
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    try:
-        sock.sendto(binascii.unhexlify(message), server_address)
-        data, _ = sock.recvfrom(4096)
+	try:
+		sock.sendto(binascii.unhexlify(message), server_address)
+		data, _ = sock.recvfrom(4096)
 
-	header = parseHeader(data[0:12])
-	logger.info("Header: %s" % header)
+		header = parseHeader(data[0:12])
+		logger.info("Header: %s" % header)
 
-	question = parseQuestion(data[12:])
-	logger.info("Question: %s" % question)
+		question = parseQuestion(data[12:])
+		logger.info("Question: %s" % question)
 
-	answer_index = 12 + question["question_length"]
-	answer = parseAnswer(data[answer_index:])
-	logger.info("Answer: %s" % answer)
+		answer_index = 12 + question["question_length"]
 
-    finally:
-        sock.close()
+		answer = parseAnswer(data[answer_index:])
+		logger.info("Answer: %s" % answer)
 
-    return binascii.hexlify(data).decode("utf-8")
+	finally:
+		sock.close()
+
+	return binascii.hexlify(data).decode("utf-8")
 
 
 def formatHex(hex):
-    """formatHex returns a pretty version of a hex string"""
-    octets = [hex[i:i+2] for i in range(0, len(hex), 2)]
-    pairs = [" ".join(octets[i:i+2]) for i in range(0, len(octets), 2)]
-    return "\n".join(pairs)
+	"""formatHex returns a pretty version of a hex string"""
+	octets = [hex[i:i+2] for i in range(0, len(hex), 2)]
+	pairs = [" ".join(octets[i:i+2]) for i in range(0, len(octets), 2)]
+	return "\n".join(pairs)
 
 
 message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
