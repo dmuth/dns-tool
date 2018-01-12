@@ -69,11 +69,107 @@ def parseHeader(data):
 	return(retval)
 
 
+def parseQuestion(data):
+	"""
+	parseQuestion(): Parse the question part of the data
+	"""
+
+	retval = {}
+	retval["question"] = ""
+
+	len_orig = len(data)
+
+	#
+	# Our answer will be a byte that is a length, then a string.
+	# This will repeat until that first byte is zero, at which point we're done.
+	#
+	while True:
+
+		length = int(ord(data[0]))
+		if length == 0:
+			data = data[1:]
+			break
+
+		#
+		# Chop off the first byte and get our question
+		#
+		data = data[1:]
+		string = data[0:length]
+
+		if retval["question"]:
+			retval["question"] += "."
+		retval["question"] += string
+
+		#
+		# Now chop off the string and repeat!
+		#
+		data = data[length:]
+
+	retval["qtype"] = (256 * ord(data[0])) + ord(data[1])
+	retval["qclass"] = (256 * ord(data[2])) + ord(data[3])
+	data = data[4:]
+
+	if retval["qtype"] == 1:
+		retval["qtype_text"] = "A"
+
+	if retval["qclass"] == 1:
+		retval["qclass_text" ] = "IN"
+
+	retval["question_length"] = len_orig - len(data)
+
+	return(retval)
+
+
+def parseAnswer(data):
+	"""
+	parseAnswer(): Parse the answer part of the response
+
+	The data passed in is the start of the answer, in the Resource Record format
+	"""
+
+	retval = {}
+
+	#
+	# RR bytes:
+	#
+	# 0-1: Bits 2-15 contain the offset to the queston that this answer answers.
+	#	I will write code to handle this later.
+	# 2-3: Type
+	# 4-5: Class
+	# 6-7: Unused(?)
+	# 8-9: TTL
+	# 10-11: RDLENGTH
+	# 12+: RDDATA (The answer!)
+	#
+
+	retval["qtype"] = (256 * ord(data[2])) + ord(data[3])
+	retval["qclass"] = (256 * ord(data[4])) + ord(data[5])
+
+	if retval["qtype"] == 1:
+		retval["qtype_text"] = "A"
+
+	if retval["qclass"] == 1:
+		retval["qclass_text" ] = "IN"
+
+	retval["ttl"] = (256 * ord(data[8])) + ord(data[9])
+	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
+
+	answer_end = 12 + retval["rdlength"]
+
+	retval["rddata"] = data[12:answer_end]
+
+	if retval["qtype_text"] == "A":
+		# IP Address
+		answer = retval["rddata"]
+		retval["rddata_text"] = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
+			+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
+
+	return(retval)
+
+
 #
 # TODO: 
-# Deconstruct Question section: put into a function for reusability with query
-# Deconstruct answer section: also put into a function
-# sendUdpMessage(): Return a data structure with some parsng
+# sendUdpMessage(): Return a data structure with some parsing
 # Argument for query to pass in
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 #
@@ -86,6 +182,7 @@ def sendUdpMessage(message, address, port):
     server_address = (address, port)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
     try:
         sock.sendto(binascii.unhexlify(message), server_address)
         data, _ = sock.recvfrom(4096)
@@ -93,6 +190,12 @@ def sendUdpMessage(message, address, port):
 	header = parseHeader(data[0:12])
 	logger.info("Header: %s" % header)
 
+	question = parseQuestion(data[12:])
+	logger.info("Question: %s" % question)
+
+	answer_index = 12 + question["question_length"]
+	answer = parseAnswer(data[answer_index:])
+	logger.info("Answer: %s" % answer)
 
     finally:
         sock.close()
