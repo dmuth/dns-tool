@@ -14,18 +14,22 @@ import socket
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
 logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 #
 # Parse our arguments.
 #
 parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart the result packets")
+parser.add_argument("--debug", "-d", action="store_true", help = "Enable debugging")
 #parser.add_argument("bucket")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
 args = parser.parse_args()
 logger.info("Args: %s" % args)
-logger.setLevel(logging.DEBUG)
+
+if args.debug:
+	logger.setLevel(logging.DEBUG)
 
 
 def parseHeader(data):
