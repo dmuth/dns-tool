@@ -9,6 +9,7 @@ import argparse
 import binascii
 import json
 import logging
+import math
 import socket
 
 
@@ -212,13 +213,92 @@ def formatHex(hex):
 	return "\n".join(pairs)
 
 
+def convertTo16Bit(val):
+	"""
+	convertTo16Bit(val): Convert an integer into a 16-bit value
+
+	I'm honestly a bit rusty on how to "best" do this, so now I'm going to do it by hand.
+	"""
+
+	retval = ""
+
+	if val < 256:
+		retval = chr(0) + chr(val)
+
+	elif val < 65536:
+		ret1 = int(math.floor(val / 256))
+		ret2 = val % 256
+		retval = chr(ret1) + chr(ret2)
+
+	else:
+		raise("Value %s is too large for a 16-bit int!" % val)
+
+	return(retval)
+
+
+
+def createHeader():
+	"""createHeader(): Create a header for our question
+
+	"""
+	retval = ""
+
+	# Request ID
+	retval += chr(int("AA", 16))  + chr(int("AA", 16))
+
+
+	# Flags
+	flags = [0, 0]
+
+	#
+	# Opcode: 0 = standard query, 1 = inverse query, 2 = server status request
+	#
+	opcode = 0
+
+	#
+	# TODO:
+	# - Add support for setting opcode in flags[0]
+	# - Add support for TC in flags[0]
+	# 
+
+	# Recursion desired?
+	rd = 1
+	flags[0] |= rd
+
+	#
+	# Add in our header
+	#
+	retval += chr(flags[0]) + chr(flags[1])
+
+
+	# QDCOUNT - Number of questions
+	qdcount = 1
+	retval += convertTo16Bit(qdcount)
+
+	# ANCOUNT - Number of answer
+	retval += convertTo16Bit(0)
+
+	# NSCOUNT - Number of authority records
+	retval += convertTo16Bit(0)
+
+	# ARCOUNT - Number of additional records
+	retval += convertTo16Bit(0)
+
+	return(retval)
+
+
 #
 # TODO: 
 #
 # Build query with functions
+#	createQuestion()
 #
 # Argument for question
 # How to handle NXDOMAIN?
+#
+# Add more logging at info level :-)
+#	Maybe something for when we're querying the server
+#	Maybe something for what the query is...
 #
 # Argument for question type (CNAME, NS, etc.)
 # How to handle multiple answers? (NS, etc.)
@@ -227,6 +307,10 @@ def formatHex(hex):
 #
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 #
+
+header = createHeader()
+#print(formatHex(header))
+
 
 message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
 "07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01"
