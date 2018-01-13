@@ -231,7 +231,7 @@ def convertTo16Bit(val):
 		retval = chr(ret1) + chr(ret2)
 
 	else:
-		raise("Value %s is too large for a 16-bit int!" % val)
+		raise Exception("Value %s is too large for a 16-bit int!" % val)
 
 	return(retval)
 
