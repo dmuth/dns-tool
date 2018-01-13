@@ -287,6 +287,39 @@ def createHeader():
 	return(retval)
 
 
+def createQuestion(q):
+	"""createQuestion(q): Create the question part of our query
+
+	"""
+
+	retval = ""
+
+	#
+	# Split up our query, go through each part of it, 
+	# and add the len and characters onto the question.
+	#
+	parts = q.split(".")
+
+	for part in parts:
+		retval += chr(len(part)) + part
+
+	#
+	# End the question with a zero.
+	#
+	retval += chr(0)
+
+	# QTYPE - 1 is an A query
+	qtype = 1
+	retval += convertTo16Bit(qtype)
+
+	# QCLASS - 1 is IN
+	qclass = 1
+	retval += convertTo16Bit(qclass)
+
+	return(retval)
+
+
+
 #
 # TODO: 
 #
@@ -294,6 +327,7 @@ def createHeader():
 #	createQuestion()
 #
 # Argument for question
+#
 # How to handle NXDOMAIN?
 #
 # Add more logging at info level :-)
@@ -310,8 +344,8 @@ def createHeader():
 
 header = createHeader()
 logger.debug(parseHeader(header))
-#print(formatHex(header))
-
+question = createQuestion("example.com")
+logger.debug(parseQuestion(question))
 
 message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
 "07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01"
