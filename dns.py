@@ -178,18 +178,17 @@ def parseAnswer(data):
 def sendUdpMessage(message, address, port):
 	"""sendUdpMessage sends a message to UDP server
 
-	message should be a hexadecimal encoded string
+	message can be a raw string
 	"""
     
 	retval = {}
 
-	message = message.replace(" ", "").replace("\n", "")
 	server_address = (address, port)
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 	try:
-		sock.sendto(binascii.unhexlify(message), server_address)
+		sock.sendto(message, server_address)
 		data, _ = sock.recvfrom(4096)
 
 		retval["header"] = parseHeader(data[0:12])
@@ -323,9 +322,6 @@ def createQuestion(q):
 #
 # TODO: 
 #
-# Build query with functions
-#	createQuestion()
-#
 # Argument for question
 #
 # How to handle NXDOMAIN?
@@ -347,10 +343,10 @@ logger.debug(parseHeader(header))
 question = createQuestion("example.com")
 logger.debug(parseQuestion(question))
 
-message = "AA AA 01 00 00 01 00 00 00 00 00 00 " \
-"07 65 78 61 6d 70 6c 65 03 63 6f 6d 00 00 01 00 01"
+message = header + question
 
 response = sendUdpMessage(message, "8.8.8.8", 53)
+
 #print(formatHex(response)) # Debugging
 #print(response)
 print(json.dumps(response, indent = 2))
