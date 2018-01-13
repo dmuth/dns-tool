@@ -309,6 +309,7 @@ def createHeader():
 #
 
 header = createHeader()
+logger.debug(parseHeader(header))
 #print(formatHex(header))
 
 
