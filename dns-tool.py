@@ -231,11 +231,12 @@ def printResponseText(response):
 	print("   Answers:            %d" % int(header["num_answers"]))
 	print("   Authority records:  %d" % (int(header["num_authority_records"])))
 	print("   Additional records: %d" % (int(header["num_additional_records"])))
-    	print("   QR:    %s" % text["qr"])
-	print("   AA:    %s" % text["aa"])
-	print("   RD:    %s" % text["rd"])
-	print("   RA:    %s" % text["ra"])
-	print("   RCODE: %s" % text["rcode"])
+    	print("   QR:     %s" % text["qr"])
+	print("   AA:     %s" % text["aa"])
+	print("   RD:     %s" % text["rd"])
+	print("   RA:     %s" % text["ra"])
+	print("   OPCODE: %s" % text["opcode"])
+	print("   RCODE:  %s" % text["rcode"])
 
 	print("")
 
