@@ -27,6 +27,7 @@ parser.add_argument("--json", action = "store_true", help = "Output response as 
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
 parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
+parser.add_argument("server", nargs = "?", help = "DNS server (default: 8.8.8.8)")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
@@ -258,15 +259,13 @@ def printResponseText(response):
 #	Maybe something for when we're querying the server
 #	Maybe something for what the query is...
 #
+# Argument for question type (CNAME, NS, etc.)
+# How to handle multiple answers? (NS, etc.)
+#
 # Sanity
 #	- Make sure request ID matches
 #	- Make sure reserved fields are empty
 #	- Make sure codes are what they should be
-#
-# Argument for question type (CNAME, NS, etc.)
-# How to handle multiple answers? (NS, etc.)
-#
-# Argument for DNS server
 #
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 # 	https://tools.ietf.org/html/rfc1035#page-26
@@ -280,7 +279,7 @@ logger.debug(parse.parseQuestion(question))
 
 message = header + question
 
-response = sendUdpMessage(message, "8.8.8.8", 53)
+response = sendUdpMessage(message, args.server, 53)
 
 printResponse(response)
 
