@@ -1,5 +1,12 @@
 
+#
+# Bytecode
+#
+*.pyc
+
+
 # Oh Vim, you so crazy!
 *.swp
 *~
+
 
