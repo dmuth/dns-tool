@@ -21,7 +21,10 @@ logger.setLevel(logging.INFO)
 # Parse our arguments.
 #
 parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart the result packets")
-parser.add_argument("--debug", "-d", action="store_true", help = "Enable debugging")
+parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
+parser.add_argument("--json", action = "store_true", help = "Output response as JSON")
+parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
+parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
 #parser.add_argument("bucket")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
@@ -66,7 +69,48 @@ def parseHeader(data):
 	retval["header"]["z"]  = (ord(data[3]) & 0b01110000) >> 4
 	retval["header"]["rcode"] = (ord(data[3]) & 0b00001111)
 	
+	#
+	# Create text versions of our header fields
+	#
+	retval["header_text"] = {}
+
+	header = retval["header"]
+	text = retval["header_text"]
+
+	if header["qr"] == 0:
+		text["qr"] = "Question"
+	elif header["qr"] == 1:
+		text["qr"] = "Response"
+	else:
+		text["qr"] = "Unknown! (%s)" % header["qr"]
+
+	if header["aa"] == 0:
+		text["aa"] = "Server isn't an authority"
+	elif header["aa"] == 1:
+		text["aa"] = "Server is an authority"
+	else:
+		text["aa"] = "Unknown! (%s)" % header["aa"]
+
+	if header["rd"] == 0:
+		text["rd"] = "Recursion not requested"
+	elif header["rd"] == 1:
+		text["rd"] = "Recursion requested"
+	else:
+		text["rd"] = "Unknown! (%s)" % header["rd"]
+
+	if header["ra"] == 0:
+		text["ra"] = "Recursion not available"
+	elif header["ra"] == 1:
+		text["ra"] = "Recursion available!"
+	else:
+		text["ra"] = "Unknown! (%s)" % header["ra"]
 	
+	if header["rcode"] == 0:
+		text["rcode"] = "No errors reported"
+	else:
+		text["rcode"] = "Error code %s" % header["rcode"]
+
+
 	retval["num_questions"] = binascii.hexlify(data[4:6])
 	retval["num_answers"] = binascii.hexlify(data[6:8])
 	retval["num_authority_records"] = binascii.hexlify(data[8:10])
@@ -318,15 +362,84 @@ def createQuestion(q):
 	return(retval)
 
 
+def printResponse(response):
+	"""
+	printResponse(response): Print up our response in 1 or more formats.
+	"""
+
+	#print(formatHex(response)) # Debugging
+	#print(response)
+	if args.json:
+		print(json.dumps(response))
+
+	if args.json_pretty_print:
+		print(json.dumps(response, indent = 2))
+
+	if args.text:
+		printResponseText(response)
+
+
+def printResponseText(response):
+	"""
+	printResponseText(response): Print up our response as text.
+	"""
+
+	question = response["question"]
+	print("Question")
+	print("========")
+	print("   Question: %s (len: %s)" % (question["question"], question["question_length"]))
+	print("   Type:     %d (%s)" % (question["qtype"], question["qtype_text"]))
+	print("   Class:    %d (%s)" % (question["qclass"], question["qclass_text"]))
+
+	print("")
+
+	header = response["header"]
+	text = header["header_text"]
+	print("Header")
+	print("======")
+	print("   Request ID:         %s" % header["request_id"])
+	print("   Questions:          %d" % int(header["num_questions"]))
+	print("   Answers:            %d" % int(header["num_answers"]))
+	print("   Authority records:  %d" % (int(header["num_authority_records"])))
+	print("   Additional records: %d" % (int(header["num_additional_records"])))
+    	print("   QR:    %s" % text["qr"])
+	print("   AA:    %s" % text["aa"])
+	print("   RD:    %s" % text["rd"])
+	print("   RA:    %s" % text["ra"])
+	print("   RCODE: %s" % text["rcode"])
+
+	print("")
+
+	answer = response["answer"]
+	print("Answer")
+	print("======")
+	print("   Answer %s" % answer["rddata_text"])
+	print("   QCLASS: %s (%s)" % (answer["qclass"], answer["qclass_text"]))
+	print("   QTYPE: %s (%s)" % (answer["qtype"], answer["qtype_text"]))
+	print("   TTL: %s" % (answer["ttl"]))
+	print("   Raw RRDATA: %s (len %s)" % (answer["rddata"], answer["rdlength"]))
+
+	print("")
+
+
 
 #
 # TODO: 
 #
+# Rename dns.py to dns-tool.py
+# Split our code into modules
+#
+# Timeouts: https://stackoverflow.com/questions/18311338/python-udp-client-time-out-machinsm
+#
 # Argument for question
+#
+# Sanity
+#	- Make sure request ID matches
+#	- Make sure reserved fields are empty
+#	- Make sure codes are what they should be
 #
 # How to handle NXDOMAIN?
 #
-# Add more logging at info level :-)
 #	Maybe something for when we're querying the server
 #	Maybe something for what the query is...
 #
@@ -336,20 +449,21 @@ def createQuestion(q):
 # Argument for DNS server
 #
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
+# 	https://tools.ietf.org/html/rfc1035#page-26
 #
 
 header = createHeader()
 logger.debug(parseHeader(header))
 question = createQuestion("example.com")
+#question = createQuestion("google.com")
 logger.debug(parseQuestion(question))
 
 message = header + question
 
 response = sendUdpMessage(message, "8.8.8.8", 53)
 
-#print(formatHex(response)) # Debugging
-#print(response)
-print(json.dumps(response, indent = 2))
+printResponse(response)
+
 
 
 
