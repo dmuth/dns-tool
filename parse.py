@@ -109,6 +109,32 @@ def parseHeader(data):
 	return(retval)
 
 
+def parseQtype(qtype):
+	"""
+	parseQtype(qtype): Get a text label for our qtype
+	"""
+
+	if qtype == 1:
+		retval = "A"
+	else:
+		retval = "Unknown! (%s)" % qtype
+
+	return(retval)
+
+
+def parseQclass(qclass):
+	"""
+	parseQclass(qclass): Get a text label for our class
+	"""
+
+	if qclass == 1:
+		retval = "IN"
+	else:
+		retval = "Unknown! (%s)" % qclass
+
+	return(retval)
+
+
 def parseQuestion(data):
 	"""
 	parseQuestion(): Parse the question part of the data
@@ -149,11 +175,8 @@ def parseQuestion(data):
 	retval["qclass"] = (256 * ord(data[2])) + ord(data[3])
 	data = data[4:]
 
-	if retval["qtype"] == 1:
-		retval["qtype_text"] = "A"
-
-	if retval["qclass"] == 1:
-		retval["qclass_text" ] = "IN"
+	retval["qtype_text"] = parseQtype(retval["qtype"])
+	retval["qclass_text"] = parseQclass(retval["qclass"])
 
 	retval["question_length"] = len_orig - len(data)
 
@@ -185,11 +208,8 @@ def parseAnswer(data):
 	retval["qtype"] = (256 * ord(data[2])) + ord(data[3])
 	retval["qclass"] = (256 * ord(data[4])) + ord(data[5])
 
-	if retval["qtype"] == 1:
-		retval["qtype_text"] = "A"
-
-	if retval["qclass"] == 1:
-		retval["qclass_text" ] = "IN"
+	retval["qtype_text"] = parseQtype(retval["qtype"])
+	retval["qclass_text"] = parseQclass(retval["qclass"])
 
 	retval["ttl"] = (256 * ord(data[8])) + ord(data[9])
 	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
