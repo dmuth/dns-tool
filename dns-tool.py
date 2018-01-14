@@ -255,13 +255,13 @@ def printResponseText(response):
 #
 # TODO: 
 #
-# Argument for question type (CNAME, NS, etc.)
-# How to handle multiple answers? (NS, etc.)
-#
 # Sanity
 #	- Make sure request ID matches
 #	- Make sure reserved fields are empty
 #	- Make sure codes are what they should be
+#
+# Argument for question type (CNAME, NS, etc.)
+# How to handle multiple answers? (NS, etc.)
 #
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 # 	https://tools.ietf.org/html/rfc1035#page-26

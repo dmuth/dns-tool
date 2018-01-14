@@ -9,6 +9,29 @@ import logging
 
 logger = logging.getLogger()
 
+qtypes = {
+	1: "A (Address)",
+	2: "NS (Nameserver)",
+	3: "MD (Mail Destination - Obseleted by MX)",
+	4: "MF (Mail Forwarder - Obseleted by MX)",
+	5: "CNAME (Canocial Name for an alias)",
+	6: "SOA (Start of a zone of Authority)",
+	7: "MB (Mailbox Domain Name - experimental)",
+	8: "MG (Mail Group Member - experimental)",
+	9: "MR (Mail Rename Group Name - experimental)",
+	10: "NULL (A null Resource Record - experimental)",
+	11: "WKS (A well known service description)",
+	12: "PTR (A domain name pointer)",
+	13: "HINFO (Host information)",
+	14: "MINFO (Mailbox or mail list information)",
+	15: "MX (Mail Exchange)",
+	16: "TXT (Text string)",
+	252: "AXFR (Request for zone transfer)",
+	253: "MAILB (Request for mailbox-related records)",
+	254: "MAILA (Request for mail agent RRs - obseleted by MX)",
+	255: "* (A request for all records)",
+	}
+
 
 def parseHeaderText(header):
 	"""
@@ -109,15 +132,22 @@ def parseHeader(data):
 	return(retval)
 
 
-def parseQtype(qtype):
+def parseQtype(qtype, question = False):
 	"""
 	parseQtype(qtype): Get a text label for our qtype
 	"""
 
-	if qtype == 1:
-		retval = "A"
+	if qtype in qtypes:
+		retval = qtypes[qtype]
+
 	else:
 		retval = "Unknown! (%s)" % qtype
+
+	#
+	# Sanity check: types of >= 252 are only acceptable for questions, not answers.
+	#
+	if qtype >= 252 and (not question):
+		retval = "Got TYPE >= 252 for non-question. (%s)" % qtype
 
 	return(retval)
 
@@ -175,7 +205,7 @@ def parseQuestion(data):
 	retval["qclass"] = (256 * ord(data[2])) + ord(data[3])
 	data = data[4:]
 
-	retval["qtype_text"] = parseQtype(retval["qtype"])
+	retval["qtype_text"] = parseQtype(retval["qtype"], question = True)
 	retval["qclass_text"] = parseQclass(retval["qclass"])
 
 	retval["question_length"] = len_orig - len(data)
