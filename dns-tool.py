@@ -39,7 +39,7 @@ if args.debug:
 
 
 def sendUdpMessage(message, address, port):
-	"""sendUdpMessage sends a message to UDP server
+	"""sendUdpMessage(message, address, port): sends a message to UDP server
 
 	message can be a raw string
 	"""
@@ -56,6 +56,7 @@ def sendUdpMessage(message, address, port):
 	sock.settimeout(3)
 
 	try:
+		logger.info("Sending query to %s:%s..." % (address, port))
 		sock.sendto(message, server_address)
 		data, _ = sock.recvfrom(4096)
 
