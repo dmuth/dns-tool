@@ -6,7 +6,51 @@
 import binascii
 import logging
 
+
 logger = logging.getLogger()
+
+
+def parseHeaderText(header):
+	"""
+	parseHeaderText(): Go through our parsed headers, and create text descriptions based on them.
+	"""
+
+	retval = {}
+
+	if header["qr"] == 0:
+		retval["qr"] = "Question"
+	elif header["qr"] == 1:
+		retval["qr"] = "Response"
+	else:
+		retval["qr"] = "Unknown! (%s)" % header["qr"]
+
+	if header["aa"] == 0:
+		retval["aa"] = "Server isn't an authority"
+	elif header["aa"] == 1:
+		retval["aa"] = "Server is an authority"
+	else:
+		retval["aa"] = "Unknown! (%s)" % header["aa"]
+
+	if header["rd"] == 0:
+		retval["rd"] = "Recursion not requested"
+	elif header["rd"] == 1:
+		retval["rd"] = "Recursion requested"
+	else:
+		retval["rd"] = "Unknown! (%s)" % header["rd"]
+
+	if header["ra"] == 0:
+		retval["ra"] = "Recursion not available"
+	elif header["ra"] == 1:
+		retval["ra"] = "Recursion available!"
+	else:
+		retval["ra"] = "Unknown! (%s)" % header["ra"]
+	
+	if header["rcode"] == 0:
+		retval["rcode"] = "No errors reported"
+	else:
+		retval["rcode"] = "Error code %s" % header["rcode"]
+
+	return(retval)
 
 
 def parseHeader(data):
@@ -45,44 +89,7 @@ def parseHeader(data):
 	#
 	# Create text versions of our header fields
 	#
-	retval["header_text"] = {}
-
-	header = retval["header"]
-	text = retval["header_text"]
-
-	if header["qr"] == 0:
-		text["qr"] = "Question"
-	elif header["qr"] == 1:
-		text["qr"] = "Response"
-	else:
-		text["qr"] = "Unknown! (%s)" % header["qr"]
-
-	if header["aa"] == 0:
-		text["aa"] = "Server isn't an authority"
-	elif header["aa"] == 1:
-		text["aa"] = "Server is an authority"
-	else:
-		text["aa"] = "Unknown! (%s)" % header["aa"]
-
-	if header["rd"] == 0:
-		text["rd"] = "Recursion not requested"
-	elif header["rd"] == 1:
-		text["rd"] = "Recursion requested"
-	else:
-		text["rd"] = "Unknown! (%s)" % header["rd"]
-
-	if header["ra"] == 0:
-		text["ra"] = "Recursion not available"
-	elif header["ra"] == 1:
-		text["ra"] = "Recursion available!"
-	else:
-		text["ra"] = "Unknown! (%s)" % header["ra"]
-	
-	if header["rcode"] == 0:
-		text["rcode"] = "No errors reported"
-	else:
-		text["rcode"] = "Error code %s" % header["rcode"]
-
+	retval["header_text"] = parseHeaderText(retval["header"])
 
 	retval["num_questions"] = binascii.hexlify(data[4:6])
 	retval["num_answers"] = binascii.hexlify(data[6:8])
