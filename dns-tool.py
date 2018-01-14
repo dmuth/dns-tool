@@ -26,7 +26,7 @@ parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debug
 parser.add_argument("--json", action = "store_true", help = "Output response as JSON")
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
-#parser.add_argument("bucket")
+parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
@@ -253,17 +253,15 @@ def printResponseText(response):
 #
 # TODO: 
 #
-# Argument for question
+# How to handle NXDOMAIN?
+#
+#	Maybe something for when we're querying the server
+#	Maybe something for what the query is...
 #
 # Sanity
 #	- Make sure request ID matches
 #	- Make sure reserved fields are empty
 #	- Make sure codes are what they should be
-#
-# How to handle NXDOMAIN?
-#
-#	Maybe something for when we're querying the server
-#	Maybe something for what the query is...
 #
 # Argument for question type (CNAME, NS, etc.)
 # How to handle multiple answers? (NS, etc.)
@@ -276,8 +274,8 @@ def printResponseText(response):
 
 header = createHeader()
 logger.debug(parse.parseHeader(header))
-question = createQuestion("example.com")
-#question = createQuestion("google.com")
+
+question = createQuestion(args.query)
 logger.debug(parse.parseQuestion(question))
 
 message = header + question
