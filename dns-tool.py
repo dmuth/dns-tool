@@ -49,6 +49,11 @@ def sendUdpMessage(message, address, port):
 
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+	#
+	# Set our timeout
+	#
+	sock.settimeout(3)
+
 	try:
 		sock.sendto(message, server_address)
 		data, _ = sock.recvfrom(4096)
@@ -60,6 +65,10 @@ def sendUdpMessage(message, address, port):
 		retval["answer"] = parse.parseAnswer(data[answer_index:])
 
 		retval["raw"] = binascii.hexlify(data).decode("utf-8")
+
+	except socket.error as e:
+		logger.error("Error connecting to %s:%s: %s" % (address, port, e))
+		raise e
 
 	finally:
 		sock.close()
@@ -243,8 +252,6 @@ def printResponseText(response):
 
 #
 # TODO: 
-#
-# Timeouts: https://stackoverflow.com/questions/18311338/python-udp-client-time-out-machinsm
 #
 # Argument for question
 #
