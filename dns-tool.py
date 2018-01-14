@@ -242,7 +242,7 @@ def printResponseText(response):
 	answer = response["answer"]
 	print("Answer")
 	print("======")
-	print("   Answer %s" % answer["rddata_text"])
+	print("   Answer: %s" % answer["rddata_text"])
 	print("   QCLASS: %s (%s)" % (answer["qclass"], answer["qclass_text"]))
 	print("   QTYPE: %s (%s)" % (answer["qtype"], answer["qtype_text"]))
 	print("   TTL: %s" % (answer["ttl"]))
@@ -254,11 +254,6 @@ def printResponseText(response):
 
 #
 # TODO: 
-#
-# How to handle NXDOMAIN?
-#
-#	Maybe something for when we're querying the server
-#	Maybe something for what the query is...
 #
 # Argument for question type (CNAME, NS, etc.)
 # How to handle multiple answers? (NS, etc.)

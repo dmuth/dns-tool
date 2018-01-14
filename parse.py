@@ -218,6 +218,7 @@ def parseAnswer(data):
 
 	retval["rddata"] = data[12:answer_end]
 
+	retval["rddata_text"] = None
 	if retval["qtype_text"] == "A":
 		# IP Address
 		answer = retval["rddata"]
