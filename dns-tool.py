@@ -27,7 +27,7 @@ parser.add_argument("--json", action = "store_true", help = "Output response as 
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
 parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
-parser.add_argument("server", nargs = "?", help = "DNS server (default: 8.8.8.8)")
+parser.add_argument("server", nargs = "?", default = "8.8.8.8", help = "DNS server (default: 8.8.8.8)")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
@@ -269,6 +269,8 @@ def printResponseText(response):
 #
 # Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 # 	https://tools.ietf.org/html/rfc1035#page-26
+# 
+# IPv6: Do queries for "AAAA" if "A" is specified. Handle things like rDNS?
 #
 
 header = createHeader()
