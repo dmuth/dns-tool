@@ -88,12 +88,16 @@ Answer
 
 ## TODO List
 
-- Random Request ID
 - Parse SOA results
+- Random Request ID
 - Argument for question type (CNAME, NS, etc.)
 - How to handle multiple answers? (NS, etc.)
 - IPv6: Do queries for "AAAA" if "A" is specified.
 - Handle RDNS queries/responses
+- Unit testing for parsing functions
+- Functionality testing for queries against a DNS server
+- Docker container to run a custom DNS server
+- Docker containers to run different DNS servers and verify behavior across different DNS server software
 
 
 ## Further Reading
