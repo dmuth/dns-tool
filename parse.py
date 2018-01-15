@@ -326,6 +326,23 @@ def parseAnswer(data):
 			retval["rddata"]["retry"], retval["rddata"]["expire"], 
 			retval["rddata"]["minimum"])
 
+	elif retval["qtype"] == 15:
+		#
+		# MX - RFC 1035 3.3.9
+		#
+
+		data = retval["rddata_raw"]
+		preference = struct.unpack(">H", data[0:2])[0]
+		data = data[2:]
+
+		exchange, offset = extractDomainName(data)
+
+		retval["rddata"]["preference"] = preference
+		retval["rddata"]["exchange"] = exchange
+
+		retval["rddata_text"] = "%s %s" % (preference, exchange)
+
+
 	retval["rddata_hex"] = binascii.hexlify(retval["rddata_raw"]).decode("utf-8")
 	del retval["rddata_raw"]
 
