@@ -72,10 +72,10 @@ Answer
 
 ## Module Architecture
 
-- create.py: Functions for creating the DNS request
-- output.py: Functions for printing out the answer to a DNS query
-- parse.py: Functions to parse the answer
-- sanity.py: Functions to perform sanity checks on answer
+- `create.py`: Functions for creating the DNS request
+- `output.py`: Functions for printing out the answer to a DNS query
+- `parse.py`: Functions to parse the answer
+- `sanity.py`: Functions to perform sanity checks on answer
 
 
 ## TODO List
