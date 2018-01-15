@@ -78,6 +78,32 @@ Answer
 ```
 
 
+## Sanity Checking
+
+This app also supports sanity checking on responses it gets from DNS servers.
+If something is off (usage of a reserved field, etc.), the app will let you know.
+Here is sample output from a run with `--text`:
+
+```
+Answer
+======
+   Answer:     172.217.15.110
+   QCLASS:     123 (IN)
+   QTYPE:      123 (A (Address))
+   TTL:        216
+   Raw RRDATA: acd90f6e (len 4)
+
+Sanity Checks Failed
+====================
+   Content of Z field in header is not zero: 2
+   Request ID on answer (aaaa) != request ID of question (beef)!
+   OPCODE > 2 reserved for future use! (Qtype = 14)
+   Invalid RCODE (77)
+   QCLASS in answer is < 1 (0)
+   QTYPE in answer is > 16 (123)
+```
+
+
 ## Module Architecture
 
 - `create.py`: Functions for creating the DNS request
