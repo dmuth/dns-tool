@@ -52,6 +52,7 @@ def printResponseText(response):
 	print("   Additional records: %d" % (int(header["num_additional_records"])))
     	print("   QR:     %s" % text["qr"])
 	print("   AA:     %s" % text["aa"])
+	print("   TC:     %s" % text["tc"])
 	print("   RD:     %s" % text["rd"])
 	print("   RA:     %s" % text["ra"])
 	print("   OPCODE: %s" % text["opcode"])
