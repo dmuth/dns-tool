@@ -63,6 +63,13 @@ def parseHeaderText(header):
 	else:
 		retval["aa"] = "Unknown! (%s)" % header["aa"]
 
+	if header["tc"] == 0:
+		retval["tc"] = "Message not truncated"
+	elif header["tc"] == 1:
+		retval["tc"] = "Message truncated"
+	else:
+		retval["tc"] = "Unknown! (%s)" % header["tc"]
+
 	if header["rd"] == 0:
 		retval["rd"] = "Recursion not requested"
 	elif header["rd"] == 1:
@@ -132,6 +139,7 @@ def parseHeader(data):
 	retval["header"]["qr"] = (ord(data[2]) & 0b10000000) >> 7
 	retval["header"]["opcode"] = (ord(data[2]) & 0b01111000) >> 3
 	retval["header"]["aa"] = (ord(data[2]) & 0b00000100) >> 2
+	retval["header"]["tc"] = (ord(data[2]) & 0b00000010) >> 1
 	retval["header"]["rd"] = (ord(data[2]) & 0b00000001)
 	retval["header"]["ra"] = (ord(data[3]) & 0b10000000) >> 7
 	retval["header"]["z"]  = (ord(data[3]) & 0b01110000) >> 4
@@ -183,23 +191,23 @@ def parseQclass(qclass):
 	return(retval)
 
 
-def parseQuestion(data):
+def extractDomainName(data):
 	"""
-	parseQuestion(): Parse the question part of the data
+	extractDomainName(data) - Extract a domain-name as defined in RFC 1035 3.3
+	
+	In more detail, this function takes a string which consists of 1 or more bytes
+	which indicate length, followed by a string.  It is terminated by a byte
+	of value 0x00.
 	"""
 
-	retval = {}
-	retval["question"] = ""
+	retval = ""
+	offset = 0
 
-	len_orig = len(data)
-
-	#
-	# Our answer will be a byte that is a length, then a string.
-	# This will repeat until that first byte is zero, at which point we're done.
-	#
 	while True:
 
 		length = int(ord(data[0]))
+		offset += 1
+
 		if length == 0:
 			data = data[1:]
 			break
@@ -210,14 +218,32 @@ def parseQuestion(data):
 		data = data[1:]
 		string = data[0:length]
 
-		if retval["question"]:
-			retval["question"] += "."
-		retval["question"] += string
+		if retval:
+			retval += "."
+		retval += string
 
 		#
 		# Now chop off the string and repeat!
 		#
 		data = data[length:]
+		offset += length
+
+	return(retval, offset)
+
+
+
+def parseQuestion(data):
+	"""
+	parseQuestion(): Parse the question part of the data
+	"""
+
+	retval = {}
+	retval["question"] = ""
+
+	len_orig = len(data)
+
+	(retval["question"], domain_offset) = extractDomainName(data)
+	data = data[domain_offset:]
 
 	retval["qtype"] = (256 * ord(data[0])) + ord(data[1])
 	retval["qclass"] = (256 * ord(data[2])) + ord(data[3])
@@ -272,6 +298,15 @@ def parseAnswer(data):
 		answer = retval["rddata"]
 		retval["rddata_text"] = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
 			+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
+
+	elif retval["qtype"] == 6:
+		# SOA - RFC 1035 3.3.13
+
+		# TODO: Refactor code in parseQuestion() to grab a len-string-ending-with-0x00 combination, then come back here
+		# https://stackoverflow.com/questions/444591/convert-a-string-of-bytes-into-an-int-python
+		# struct.unpack(">L", "\xff\xcc\xa6\x00")
+		print("TEST", retval["rddata"])
+		print(retval["rddata"])
 
 	retval["rddata"] = binascii.hexlify(retval["rddata"]).decode("utf-8")
 
