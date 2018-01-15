@@ -3,6 +3,8 @@
 #
 
 import logging
+import math
+import random
 
 
 logger = logging.getLogger()
@@ -38,9 +40,14 @@ def createHeader():
 	"""
 	retval = ""
 
-	# Request ID
-	retval += chr(int("AA", 16))  + chr(int("AA", 16))
-
+	#
+	# The request ID is two bytes, so grab each byte, turn it into a char/string,
+	# and append it to the request ID.
+	#
+	request_id = random.randint(0, 65535)
+	request_id1 = request_id >> 8
+	request_id2 = request_id & 0xff
+	retval += chr(request_id1) + chr(request_id2)
 
 	# Flags
 	flags = [0, 0]
