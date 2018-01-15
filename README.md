@@ -1,7 +1,8 @@
+<img src="./img/networking.svg" width="250" align="right" />
 
 # DNS Tool
 
-This is a DNS tool I wrote, based off [an example I found here](https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html).
+This is a DNS tool I wrote, based off [example code I found here](https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html).
 
 It is a work in progress, and will be updated.
 
@@ -93,6 +94,11 @@ Answer
 - https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html
 - http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 - https://tools.ietf.org/html/rfc1035
+
+
+## Credits
+
+- Icon made by <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>.
 
 
 ## Contact
