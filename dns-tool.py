@@ -13,6 +13,8 @@ import math
 import socket
 
 import parse
+import sanity
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
 logger = logging.getLogger()
@@ -60,6 +62,8 @@ def sendUdpMessage(message, address, port):
 		sock.sendto(message, server_address)
 		data, _ = sock.recvfrom(4096)
 
+		request_id = parse.getRequestId(message)
+
 		retval["header"] = parse.parseHeader(data[0:12])
 		retval["question"] = parse.parseQuestion(data[12:])
 
@@ -67,6 +71,8 @@ def sendUdpMessage(message, address, port):
 		retval["answer"] = parse.parseAnswer(data[answer_index:])
 
 		retval["raw"] = binascii.hexlify(data).decode("utf-8")
+
+		retval["sanity"] = sanity.get(retval, request_id)
 
 	except socket.error as e:
 		logger.error("Error connecting to %s:%s: %s" % (address, port, e))
@@ -251,15 +257,21 @@ def printResponseText(response):
 
 	print("")
 
+	sanity = response["sanity"]
+
+	if not len(sanity):
+		return
+
+	print("Sanity Checks Failed")
+	print("====================")
+	for val in sanity:
+		print("   %s" % val)
+
+	print("")
 
 
 #
 # TODO: 
-#
-# Sanity
-#	- Make sure request ID matches
-#	- Make sure reserved fields are empty
-#	- Make sure codes are what they should be
 #
 # Argument for question type (CNAME, NS, etc.)
 # How to handle multiple answers? (NS, etc.)

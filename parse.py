@@ -85,6 +85,14 @@ def parseHeaderText(header):
 	return(retval)
 
 
+#
+# Extract request ID from the header
+#
+def getRequestId(data):
+	retval = binascii.hexlify(data[0:2])
+	return(retval)
+
+
 def parseHeader(data):
 	"""
 	parseHeader(): Extracts the various fields of our header
