@@ -34,6 +34,42 @@ optional arguments:
 ```
 
 
+## Sample Run
+
+Let's run a query for google.com:
+
+```
+$ ./dns-tool.py google.com --text 
+Question
+========
+   Question: google.com (len: 16)
+   Type:     1 (A (Address))
+   Class:    1 (IN)
+
+Header
+======
+   Request ID:         aaaa
+   Questions:          1
+   Answers:            1
+   Authority records:  0
+   Additional records: 0
+   QR:     Response
+   AA:     Server isn't an authority
+   RD:     Recursion requested
+   RA:     Recursion available!
+   OPCODE: Standard query
+   RCODE:  No errors reported
+
+Answer
+======
+   Answer:     172.217.5.238
+   QCLASS:     1 (IN)
+   QTYPE:      1 (A (Address))
+   TTL:        93
+   Raw RRDATA: acd905ee (len 4)
+```
+
+
 ## Module Architecture
 
 - create.py: Functions for creating the DNS request
