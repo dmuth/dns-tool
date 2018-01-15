@@ -3,6 +3,7 @@
 # DNS Tool
 
 This is a DNS tool I wrote, based off [example code I found here](https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html).
+It creates DNS packets from scratch and sends the queries to a DNS server.
 
 It is a work in progress, and will be updated.
 
