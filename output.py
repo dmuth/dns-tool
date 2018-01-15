@@ -67,7 +67,8 @@ def printResponseText(response):
 	print("   QCLASS:     %s (%s)" % (answer["qclass"], answer["qclass_text"]))
 	print("   QTYPE:      %s (%s)" % (answer["qtype"], answer["qtype_text"]))
 	print("   TTL:        %s" % (answer["ttl"]))
-	print("   Raw RRDATA: %s (len %s)" % (answer["rddata"], answer["rdlength"]))
+	print("   Raw RRDATA: %s (len %s)" % (answer["rddata_hex"], answer["rdlength"]))
+	print("   Full RRDATA: %s" % (answer["rddata"]))
 
 	print("")
 

@@ -114,7 +114,6 @@ Sanity Checks Failed
 
 ## TODO List
 
-- Parse SOA results
 - Random Request ID
 - Argument for question type (CNAME, NS, etc.)
 - How to handle multiple answers? (NS, etc.)

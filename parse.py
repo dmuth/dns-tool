@@ -5,6 +5,7 @@
 
 import binascii
 import logging
+import struct
 
 
 logger = logging.getLogger()
@@ -290,25 +291,43 @@ def parseAnswer(data):
 
 	answer_end = 12 + retval["rdlength"]
 
-	retval["rddata"] = data[12:answer_end]
-
+	retval["rddata"] = {}
+	retval["rddata_raw"] = data[12:answer_end]
 	retval["rddata_text"] = None
+
 	if retval["qtype"] == 1:
 		# IP Address
-		answer = retval["rddata"]
+		answer = retval["rddata_raw"]
 		retval["rddata_text"] = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
 			+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
+		retval["rddata"]["ip"] = retval["rddata_text"]
 
 	elif retval["qtype"] == 6:
+		#
 		# SOA - RFC 1035 3.3.13
+		#
 
-		# TODO: Refactor code in parseQuestion() to grab a len-string-ending-with-0x00 combination, then come back here
-		# https://stackoverflow.com/questions/444591/convert-a-string-of-bytes-into-an-int-python
-		# struct.unpack(">L", "\xff\xcc\xa6\x00")
-		print("TEST", retval["rddata"])
-		print(retval["rddata"])
+		data = retval["rddata_raw"]
 
-	retval["rddata"] = binascii.hexlify(retval["rddata"]).decode("utf-8")
+		mname, offset = extractDomainName(data)
+		data = data[offset:]
+
+		rname, offset = extractDomainName(data)
+		data = data[offset:]
+
+		retval["rddata"]["serial"] = struct.unpack(">L", data[0:4])[0]
+		retval["rddata"]["refresh"] = struct.unpack(">L", data[4:8])[0]
+		retval["rddata"]["retry"] = struct.unpack(">L", data[8:12])[0]
+		retval["rddata"]["expire"] = struct.unpack(">L", data[12:16])[0]
+		retval["rddata"]["minimum"] = struct.unpack(">L", data[16:20])[0]
+
+		retval["rddata_text"] = "%s %s %d %d %d %d %d" % (mname, rname, 
+			retval["rddata"]["serial"], retval["rddata"]["refresh"], 
+			retval["rddata"]["retry"], retval["rddata"]["expire"], 
+			retval["rddata"]["minimum"])
+
+	retval["rddata_hex"] = binascii.hexlify(retval["rddata_raw"]).decode("utf-8")
+	del retval["rddata_raw"]
 
 	return(retval)
 
