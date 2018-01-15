@@ -18,7 +18,7 @@ It is a work in progress, and will be updated.
 ## Requirements
 
 - Python 3
-- Wanting to learn more about how the Internet works
+- A desire to learn more about how the Internet works
 
 
 ## Usage
