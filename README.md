@@ -1,5 +1,5 @@
 
-# DNS TOOL
+# DNS Tool
 
 This is a DNS tool I wrote, based off [an example I found here](https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html).
 
