@@ -3,6 +3,8 @@
 # A script to send messages to DNS servers and parse the responses.
 # Based off of the example at https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html
 #
+# RFC 1035 was also helpful to me: https://tools.ietf.org/html/rfc1035#page-26
+#
 
 
 import argparse
