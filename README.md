@@ -117,6 +117,7 @@ Sanity Checks Failed
 - How to handle multiple answers? (NS, etc.)
 - IPv6: Do queries for "AAAA" if "A" is specified.
 - Handle RDNS queries/responses
+- How to turn this into an application that can be installed with Pip?
 - Unit testing for parsing functions
 - Functionality testing for queries against a DNS server
 - Docker container to run a custom DNS server
