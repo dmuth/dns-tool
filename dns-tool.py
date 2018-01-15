@@ -95,22 +95,6 @@ def formatHex(hex):
 	return "\n".join(pairs)
 
 
-
-
-#
-# TODO: 
-#
-# Random request-id
-#
-# Argument for question type (CNAME, NS, etc.)
-# How to handle multiple answers? (NS, etc.)
-#
-# Look up code as per http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
-# 	https://tools.ietf.org/html/rfc1035#page-26
-# 
-# IPv6: Do queries for "AAAA" if "A" is specified. Handle things like rDNS?
-#
-
 header = create.createHeader()
 logger.debug(parse.parseHeader(header))
 
