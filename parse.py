@@ -79,6 +79,16 @@ def parseHeaderText(header):
 	
 	if header["rcode"] == 0:
 		retval["rcode"] = "No errors reported"
+	elif header["rcode"] == 1:
+		retval["rcode"] = "Format error (nameserver couldn't interpret this query)"
+	elif header["rcode"] == 2:
+		retval["rcode"] = "Server failure"
+	elif header["rcode"] == 3:
+		retval["rcode"] = "Name error (name does not exist!)"
+	elif header["rcode"] == 4:
+		retval["rcode"] = "Not implemented (nameserver doesn't support this type of query)"
+	elif header["rcode"] == 5:
+		retval["rcode"] = "Refused (the server refused to answer our question!)"
 	else:
 		retval["rcode"] = "Error code %s" % header["rcode"]
 
