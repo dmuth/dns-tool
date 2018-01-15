@@ -258,6 +258,22 @@ def parseQuestion(data):
 	return(retval)
 
 
+
+def parseAnswerIp(data):
+	"""
+	parseAnswerIp(): Grab our IP address from an answer to an A query
+	"""
+
+	rddata = {}
+
+	text = (str(ord(data[0])) + "." + str(ord(data[1])) 
+		+ "." + str(ord(data[2])) + "." + str(ord(data[3])))
+
+	rddata["ip"] = text
+
+	return(rddata, text)
+
+
 def parseAnswer(data):
 	"""
 	parseAnswer(): Parse the answer part of the response
@@ -291,16 +307,11 @@ def parseAnswer(data):
 
 	answer_end = 12 + retval["rdlength"]
 
-	retval["rddata"] = {}
 	retval["rddata_raw"] = data[12:answer_end]
-	retval["rddata_text"] = None
 
 	if retval["qtype"] == 1:
 		# IP Address
-		answer = retval["rddata_raw"]
-		retval["rddata_text"] = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
-			+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
-		retval["rddata"]["ip"] = retval["rddata_text"]
+		(retval["rddata"], retval["rddata_text"]) = parseAnswerIp(retval["rddata_raw"])
 
 	elif retval["qtype"] == 6:
 		#
