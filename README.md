@@ -15,6 +15,12 @@ It is a work in progress, and will be updated.
 - Sanity Checking module which reports on any inconsistencies it finds in the response.
 
 
+## Requirements
+
+- Python 3
+- Wanting to learn more about how the Internet works
+
+
 ## Usage
 
 ```
