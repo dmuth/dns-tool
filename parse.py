@@ -261,7 +261,7 @@ def parseQuestion(data):
 
 def parseAnswerIp(data):
 	"""
-	parseAnswerIp(): Grab our IP address from an answer to an A query
+	parseAnswerIp(data): Grab our IP address from an answer to an A query
 	"""
 
 	rddata = {}
@@ -270,6 +270,51 @@ def parseAnswerIp(data):
 		+ "." + str(ord(data[2])) + "." + str(ord(data[3])))
 
 	rddata["ip"] = text
+
+	return(rddata, text)
+
+
+def parseAnswerSoa(data):
+	"""
+	parseAnswerSoa(data): Grab our SOA record from the answer to a query
+	"""
+
+	rddata = {}
+
+	mname, offset = extractDomainName(data)
+	data = data[offset:]
+
+	rname, offset = extractDomainName(data)
+	data = data[offset:]
+
+	rddata["serial"] = struct.unpack(">L", data[0:4])[0]
+	rddata["refresh"] = struct.unpack(">L", data[4:8])[0]
+	rddata["retry"] = struct.unpack(">L", data[8:12])[0]
+	rddata["expire"] = struct.unpack(">L", data[12:16])[0]
+	rddata["minimum"] = struct.unpack(">L", data[16:20])[0]
+
+	text = "%s %s %d %d %d %d %d" % (mname, rname, 
+		rddata["serial"], rddata["refresh"], rddata["retry"], rddata["expire"], 
+		rddata["minimum"])
+
+	return(rddata, text)
+
+def parseAnswerMx(data):
+	"""
+	parseAnswerMx(data): Grab or MX record from the answer to a query.
+	"""
+
+	rddata = {}
+
+	preference = struct.unpack(">H", data[0:2])[0]
+	data = data[2:]
+
+	exchange, offset = extractDomainName(data)
+
+	rddata["preference"] = preference
+	rddata["exchange"] = exchange
+
+	text = "%s %s" % (preference, exchange)
 
 	return(rddata, text)
 
@@ -317,41 +362,13 @@ def parseAnswer(data):
 		#
 		# SOA - RFC 1035 3.3.13
 		#
-
-		data = retval["rddata_raw"]
-
-		mname, offset = extractDomainName(data)
-		data = data[offset:]
-
-		rname, offset = extractDomainName(data)
-		data = data[offset:]
-
-		retval["rddata"]["serial"] = struct.unpack(">L", data[0:4])[0]
-		retval["rddata"]["refresh"] = struct.unpack(">L", data[4:8])[0]
-		retval["rddata"]["retry"] = struct.unpack(">L", data[8:12])[0]
-		retval["rddata"]["expire"] = struct.unpack(">L", data[12:16])[0]
-		retval["rddata"]["minimum"] = struct.unpack(">L", data[16:20])[0]
-
-		retval["rddata_text"] = "%s %s %d %d %d %d %d" % (mname, rname, 
-			retval["rddata"]["serial"], retval["rddata"]["refresh"], 
-			retval["rddata"]["retry"], retval["rddata"]["expire"], 
-			retval["rddata"]["minimum"])
+		(retval["rddata"], retval["rddata_text"]) = parseAnswerSoa(retval["rddata_raw"])
 
 	elif retval["qtype"] == 15:
 		#
 		# MX - RFC 1035 3.3.9
 		#
-
-		data = retval["rddata_raw"]
-		preference = struct.unpack(">H", data[0:2])[0]
-		data = data[2:]
-
-		exchange, offset = extractDomainName(data)
-
-		retval["rddata"]["preference"] = preference
-		retval["rddata"]["exchange"] = exchange
-
-		retval["rddata_text"] = "%s %s" % (preference, exchange)
+		(retval["rddata"], retval["rddata_text"]) = parseAnswerMx(retval["rddata_raw"])
 
 
 	retval["rddata_hex"] = binascii.hexlify(retval["rddata_raw"]).decode("utf-8")
