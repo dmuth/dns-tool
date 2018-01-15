@@ -114,7 +114,6 @@ Sanity Checks Failed
 
 ## TODO List
 
-- Argument for question type (CNAME, NS, etc.)
 - How to handle multiple answers? (NS, etc.)
 - IPv6: Do queries for "AAAA" if "A" is specified.
 - Handle RDNS queries/responses

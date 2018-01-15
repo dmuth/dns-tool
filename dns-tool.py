@@ -28,12 +28,13 @@ logger.setLevel(logging.INFO)
 # Parse our arguments.
 #
 parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart the result packets")
-parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
+parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
+parser.add_argument("server", nargs = "?", default = "8.8.8.8", help = "DNS server (default: 8.8.8.8)")
+parser.add_argument("--query-type", default = "a", help = "Query type (A, CNAME, MX, etc.)")
 parser.add_argument("--json", action = "store_true", help = "Output response as JSON")
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
-parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
-parser.add_argument("server", nargs = "?", default = "8.8.8.8", help = "DNS server (default: 8.8.8.8)")
+parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
@@ -98,7 +99,7 @@ def formatHex(hex):
 header = create.createHeader()
 logger.debug(parse.parseHeader(header))
 
-question = create.createQuestion(args.query)
+question = create.createQuestion(args.query, args.query_type)
 logger.debug(parse.parseQuestion(question))
 
 message = header + question

@@ -10,6 +10,33 @@ import random
 logger = logging.getLogger()
 
 
+#
+# A lookup table for our query types.
+#
+query_types = {
+	"a": 1,
+	"ns": 2,
+	"md": 3,
+	"mf": 4,
+	"cname": 5,
+	"soa": 6,
+	"mb": 7,
+	"mg": 8,
+	"mr": 9,
+	"null": 10,
+	"wks": 11,
+	"ptr": 12,
+	"hinfo": 13,
+	"minfo": 14,
+	"mx": 15,
+	"txt": 16,
+	"axfr": 252,
+	"mailb": 253,
+	"maila": 254,
+	"*": 255,
+	}
+
+
 def convertTo16Bit(val):
 	"""
 	convertTo16Bit(val): Convert an integer into a 16-bit value
@@ -89,8 +116,8 @@ def createHeader():
 	return(retval)
 
 
-def createQuestion(q):
-	"""createQuestion(q): Create the question part of our query
+def createQuestion(q, query_type):
+	"""createQuestion(q, query_type): Create the question part of our query
 
 	"""
 
@@ -110,8 +137,9 @@ def createQuestion(q):
 	#
 	retval += chr(0)
 
-	# QTYPE - 1 is an A query
-	qtype = 1
+	if query_type in query_types:
+		qtype = query_types[query_type]
+
 	retval += convertTo16Bit(qtype)
 
 	# QCLASS - 1 is IN
