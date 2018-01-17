@@ -72,8 +72,18 @@ def sendUdpMessage(message, address, port):
 		retval["header"] = parse.parseHeader(data[0:12])
 		retval["question"] = parse.parseQuestion(data[12:])
 
+
+		# TEST
 		answer_index = 12 + retval["question"]["question_length"]
-		retval["answer"] = parse.parseAnswer(data[answer_index:])
+		#print("TEST INDEX", retval["question"]["question_length"], answer_index)
+		#answers = parse.parseAnswers2(data[answer_index:])
+		answers = parse.parseAnswers2(data, question_length = retval["question"]["question_length"])
+		print("TEST ANSWERS", answers)
+		return(False)
+
+		# ORIGINAL CODE!
+		answer_index = 12 + retval["question"]["question_length"]
+		(retval["answer"], answer_index) = parse.parseAnswer(data[answer_index:])
 
 		retval["raw"] = binascii.hexlify(data).decode("utf-8")
 
