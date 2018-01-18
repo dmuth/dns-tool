@@ -402,12 +402,10 @@ def extractDomainName2(answer, data_all):
 	"""
 
 	retval = ""
-	offset = 0
 
 	while True:
 
 		length = int(ord(answer[0]))
-		offset += 1
 
 		if length == 0:
 			#
@@ -447,9 +445,8 @@ def extractDomainName2(answer, data_all):
 		# Now chop off the string and repeat!
 		#
 		answer = answer[length:]
-		offset += length
 
-	return(retval, offset)
+	return(retval)
 
 
 def parseAnswerHeaders(data):
@@ -499,8 +496,7 @@ def parseAnswerMx2(answer, data_all):
 	preference = struct.unpack(">H", answer[0:2])[0]
 	answer = answer[2:]
 
-	# TEST/TODO: Do we need this offset variable anymore?
-	exchange, offset = extractDomainName2(answer, data_all)
+	exchange = extractDomainName2(answer, data_all)
 
 	retval["preference"] = preference
 	retval["exchange"] = exchange
