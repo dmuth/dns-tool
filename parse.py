@@ -331,6 +331,67 @@ def parseAnswerMx(data, answer):
 	return(rddata, text)
 
 
+def getPointerAddress(data):
+	"""
+	getPointerAdrress(data): Return the address of a pointer
+	"""
+
+	pointer1 = int(ord(data[0])) & 0b00111111
+	pointer2 = int(ord(data[1])) & 0b11111111
+
+	retval = (256 * pointer1) + pointer2
+
+	return(retval)
+
+
+def walkPointers(pointer, data):
+	"""
+	walkPointers(pointer, data): Follow our pointers and return a string with the data we got.
+	"""
+
+	retval = ""
+
+	while True:
+
+		length = int(ord(data[pointer]))
+
+		if length == 0:
+			#
+			# We're at the end of the domain-name
+			#
+			break
+
+		elif length & 0b11000000:
+			#
+			# This is *another* pointer, so we need to follow it...
+			#
+
+			pointer_old = pointer
+			pointer = getPointerAddress(data[pointer:pointer + 2])
+			logger.debug("Pointer found!  Raw value: %s, interpreted value: %d" % (
+				formatHex(data[pointer_old:pointer_old + 2]), pointer))
+
+		else:
+			#
+			# Chop off the first byte and get our label
+			#
+			pointer += 1
+			answer = data[pointer:pointer + length]
+
+			if retval:
+				retval += "."
+			retval += answer
+
+			#
+			# Now go to the next label
+			#
+			pointer += length
+
+	return(retval)
+
+
+
+
 def extractDomainName2(answer, data_all):
 	"""
 	extractDomainName2(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
@@ -349,22 +410,31 @@ def extractDomainName2(answer, data_all):
 		offset += 1
 
 		if length == 0:
+			#
+			# We're at the end of the domain-name
+			#
 			answer = answer[1:]
 			break
 
-		if length & 0b11000000:
-			pointer1 = int(ord(answer[0])) & 0b00111111
-			pointer2 = int(ord(answer[1])) & 0b11111111
-			pointer = (256 * pointer1) + pointer2
+		elif length & 0b11000000:
+			#
+			# This is actually a pointer, so follow it!
+			#
+			# TODO:
+			# - Make sure to add loop detection in the pointer following function (hash table of addresses we've visited, WARN if violated)
+			if retval:
+				retval += "."
+
+			pointer = getPointerAddress(answer[0:2])
 			logger.debug("Pointer found!  Raw value: %s, interpreted value: %d" % (
 				formatHex(answer[0:2]), pointer))
-			print("TEST POINTER POINTS TO", pointer, data_all[pointer:pointer+20])
+			retval += walkPointers(pointer, data_all)
 			
 			break
 
 
 		#
-		# Chop off the first byte and get our question
+		# Chop off the first byte and get our answer
 		#
 		answer = answer[1:]
 		string = answer[0:length]
@@ -429,6 +499,7 @@ def parseAnswerMx2(answer, data_all):
 	preference = struct.unpack(">H", answer[0:2])[0]
 	answer = answer[2:]
 
+	# TEST/TODO: Do we need this offset variable anymore?
 	exchange, offset = extractDomainName2(answer, data_all)
 
 	retval["preference"] = preference
@@ -455,6 +526,7 @@ def parseAnswerBody(answer, data_all):
 	# TODO:
 	#
 	# - Write code to follow chain of pointers
+	# 	- Loop detection!
 	# - Write parseAnswerSoa2()
 	# - Write parseAnswerIp2()
 	# - Update sanity checking code to check against each answer
