@@ -39,8 +39,17 @@ def formatHex(data):
 	formatHex(hex): Returns a nice hex version of a string
 	"""
 
+	# Python 2
 	hex = binascii.hexlify(data)
 	retval = " ".join(hex[i:i+2] for i in range(0, len(hex), 2))
+
+	# Python 3
+	#if not isinstance(data, bytes):
+	#	hex = bytearray(data, "iso8859-1").hex()
+	#else:
+	#	hex = data.hex()
+	#
+	#retval = " ".join(hex[i:i+2] for i in range(0, len(hex), 2))
 
 	return(retval)
 
