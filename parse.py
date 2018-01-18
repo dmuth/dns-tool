@@ -351,7 +351,15 @@ def walkPointers(pointer, data):
 
 	retval = ""
 
+	beenhere = {}
+	#beenhere[56] = True # Debugging
+
 	while True:
+
+		if pointer in beenhere:
+			logger.error("walkPointers(): We were previously at this pointer, bailing out! pointer=%s, beenhere=%s" % (
+				pointer, beenhere))
+		beenhere[pointer] = True
 
 		length = int(ord(data[pointer]))
 
