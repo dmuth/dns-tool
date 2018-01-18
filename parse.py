@@ -255,7 +255,18 @@ def parseQuestion(data):
 
 	len_orig = len(data)
 
-	(retval["question"], domain_offset) = extractDomainName(data, data)
+	#
+	# The domain-name in the question is in the same format as it is in the answer.
+	# So I have that going for me which is nice.
+	# The offset can be calculated by adding 2 the value we extract, 1 byte for the leading
+	# length byte and 1 byte for the final 0x00.
+	#
+	retval["question"] = extractDomainName2(data, data)
+	domain_offset = len(retval["question"]) + 2
+
+	#
+	# Now pull out the QTYPE and QCLASS.
+	#
 	data = data[domain_offset:]
 
 	retval["qtype"] = (256 * ord(data[0])) + ord(data[1])
@@ -398,8 +409,6 @@ def walkPointers(pointer, data):
 	return(retval)
 
 
-
-
 def extractDomainName2(answer, data_all):
 	"""
 	extractDomainName2(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
@@ -426,8 +435,6 @@ def extractDomainName2(answer, data_all):
 			#
 			# This is actually a pointer, so follow it!
 			#
-			# TODO:
-			# - Make sure to add loop detection in the pointer following function (hash table of addresses we've visited, WARN if violated)
 			if retval:
 				retval += "."
 
@@ -499,7 +506,6 @@ def parseAnswerMx2(answer, data_all):
 	"""
 
 	retval = {}
-	#(retval, retval_text) = parseAnswerMx2(answer["rddata_raw"], data_all)
 
 	preference = struct.unpack(">H", answer[0:2])[0]
 	answer = answer[2:]
@@ -595,7 +601,6 @@ def parseAnswers2(data, question_length = 0):
 		del answer["rddata_raw"]
 
 		retval.append(answer)
-		print("") # TEST
 
 		#
 		# If we've run off the end of the packet, then break out of this loop
