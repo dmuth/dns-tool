@@ -496,6 +496,21 @@ def parseAnswerHeaders(data):
 	return(retval)
 
 
+def parseAnswerIp2(answer, data_all):
+	"""
+	parseAnswerIp2(data): Grab our IP address from an answer to an A query
+	"""
+
+	retval = {}
+
+	text = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
+		+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
+
+	retval["ip"] = text
+
+	return(retval, text)
+
+
 def parseAnswerMx2(answer, data_all):
 	"""
 	parseAnswerMx2(answer, data_all): Parse an MX answer.
@@ -532,23 +547,9 @@ def parseAnswerBody(answer, data_all):
 	retval = ""
 	retval_text = ""
 
-	#
-	# TODO:
-	#
-	# - Write code to follow chain of pointers
-	# 	- Loop detection!
-	# - Write parseAnswerSoa2()
-	# - Write parseAnswerIp2()
-	# - Update sanity checking code to check against each answer
-	# - Remove old code
-	# - Rename new functions that end in "2"
-	# - Update text printing code to honor new data format
-	#
-
 	if answer["headers"]["qtype"] == 1:
 		# IP Address
-		#(retval["rddata"], retval["rddata_text"]) = parseAnswerIp(data, retval["rddata_raw"])
-		print("TEST IP")
+		(retval, retval_text) = parseAnswerIp2(answer["rddata_raw"][12:], data_all)
 
 	elif answer["headers"]["qtype"] == 6:
 		#
