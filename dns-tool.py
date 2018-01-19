@@ -65,6 +65,7 @@ def sendUdpMessage(message, address, port):
 	try:
 		logger.info("Sending query to %s:%s..." % (address, port))
 		sock.sendto(message, server_address)
+		#sock.sendto(bytearray(message, "iso8859-1"), server_address)
 		data, _ = sock.recvfrom(4096)
 
 		request_id = parse.getRequestId(message)
@@ -72,22 +73,18 @@ def sendUdpMessage(message, address, port):
 		retval["header"] = parse.parseHeader(data[0:12])
 		retval["question"] = parse.parseQuestion(data[12:])
 
-
-		# TEST
+		#
+		# Send us past the headers and question and parse the answer(s).
+		#
 		answer_index = 12 + retval["question"]["question_length"]
-		#print("TEST INDEX", retval["question"]["question_length"], answer_index)
-		#answers = parse.parseAnswers2(data[answer_index:])
-		answers = parse.parseAnswers2(data, question_length = retval["question"]["question_length"])
-		print("TEST ANSWERS", answers)
-		return(False)
+		retval["answers"] = parse.parseAnswers2(data, question_length = retval["question"]["question_length"])
 
-		# ORIGINAL CODE!
-		answer_index = 12 + retval["question"]["question_length"]
-		(retval["answer"], answer_index) = parse.parseAnswer(data[answer_index:])
+		#
+		# Do a sanity check on the results.
+		#
+		retval["sanity"] = sanity.go(retval["header"], retval["answers"], request_id)
 
-		retval["raw"] = binascii.hexlify(data).decode("utf-8")
-
-		retval["sanity"] = sanity.get(retval, request_id)
+		retval["raw"] = parse.formatHex(data)
 
 	except socket.error as e:
 		logger.error("Error connecting to %s:%s: %s" % (address, port, e))
