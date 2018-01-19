@@ -270,7 +270,7 @@ def parseQuestion(data):
 	# The offset can be calculated by adding 2 the value we extract, 1 byte for the leading
 	# length byte and 1 byte for the final 0x00.
 	#
-	retval["question"] = extractDomainName2(data, data)
+	(retval["question"], _) = extractDomainName2(data, data)
 	domain_offset = len(retval["question"]) + 2
 
 	#
@@ -418,20 +418,26 @@ def walkPointers(pointer, data):
 	return(retval)
 
 
-def extractDomainName2(answer, data_all):
+def extractDomainName2(answer, data_all, debug_bad_pointer = False):
 	"""
 	extractDomainName2(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
 	
 	In more detail, this function takes a string which consists of 1 or more bytes
 	which indicate length, followed by a string.  It is terminated by a byte
 	of value 0x00.
+	
+	Sanity checking is done if either of the first two bits of the pointer is set--if just
+	one bit or the other is set, that is logged.
 	"""
 
 	retval = ""
+	sanity = []
 
 	while True:
 
 		length = int(ord(answer[0]))
+		if debug_bad_pointer:
+			length = 0b01000000 # Debugging
 
 		if length == 0:
 			#
@@ -441,6 +447,14 @@ def extractDomainName2(answer, data_all):
 			break
 
 		elif length & 0b11000000:
+
+			#
+			# Make sure both of the first bits are set
+			#
+			if length != 192:
+				sanity.append("Bad pointer! Expected value of 192, got %d!" % length)
+				break
+
 			#
 			# This is actually a pointer, so follow it!
 			#
@@ -453,6 +467,7 @@ def extractDomainName2(answer, data_all):
 			retval += walkPointers(pointer, data_all)
 			
 			break
+
 
 
 		#
@@ -470,7 +485,7 @@ def extractDomainName2(answer, data_all):
 		#
 		answer = answer[length:]
 
-	return(retval)
+	return(retval, sanity)
 
 
 def parseAnswerHeaders(data):
@@ -534,7 +549,8 @@ def parseAnswerMx2(answer, data_all):
 	preference = struct.unpack(">H", answer[0:2])[0]
 	answer = answer[2:]
 
-	exchange = extractDomainName2(answer, data_all)
+	(exchange, retval["sanity"]) = extractDomainName2(answer, data_all)
+	#(exchange, retval["sanity"]) = extractDomainName2(answer, data_all, debug_bad_pointer = True) # Debugging
 
 	retval["preference"] = preference
 	retval["exchange"] = exchange
@@ -603,6 +619,13 @@ def parseAnswers2(data, question_length = 0):
 		answer["rddata_raw"] = data[index_old:index]
 
 		(answer["rddata"], answer["rddata_text"]) = parseAnswerBody(answer, data)
+		#
+		# This is a bit of hack, but we want to grab the sanity data from the rddata 
+		# dictonary and put it into its own dictionary member so that the sanity
+		# module can later extract it.
+		#
+		answer["sanity"] = answer["rddata"]["sanity"]
+		del answer["rddata"]["sanity"]
 
 		#
 		# Deleting the raw data because it will choke when convered to JSON

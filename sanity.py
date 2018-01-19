@@ -61,7 +61,7 @@ def checkAnswers(answers):
 
 	for answer in answers:
 
-		sanity = []
+		sanity = answer["sanity"]
 		headers = answer["headers"]
 
 		#headers["qclass"] = 0 # Debugging
