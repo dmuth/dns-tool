@@ -9,16 +9,25 @@ import logging
 logger = logging.getLogger()
 
 
-def get(data, request_id):
+def go(header, answers, request_id):
 	"""
-	get(result, request_id): Cheacks our result for general sanity.
+	go(header, answer, request_id): Do sanity checks on our result.  Anything that is an issue is returned in an array.
+	"""
 
-	Returns a list of any issues it finds
+	retval = {}
+
+	retval["header"] = checkHeader(header, request_id)
+	retval["answers"] = checkAnswers(answers)
+
+	return(retval)
+
+
+def checkHeader(header, request_id):
+	"""
+	checkHeader(header, request_id): Check our header for sanity
 	"""
 
 	retval = []
-
-	header = data["header"]
 
 	#header["header"]["z"] = 2 # Debugging
 	if header["header"]["z"] != 0:
@@ -40,20 +49,39 @@ def get(data, request_id):
 		warning = "Invalid RCODE (%s)" % header["header"]["rcode"]
 		retval.append(warning)
 		
-	#data["answer"]["qclass"] = 0 # Debugging
-	if data["answer"]["qclass"] < 1:
-		warning = "QCLASS in answer is < 1 (%s)" % data["answer"]["qclass"]
-		retval.append(warning)
+	return(retval)
 
-	#data["answer"]["qclass"] = 123 # Debugging
-	if data["answer"]["qclass"] > 4:
-		warning = "QCLASS in answer is > 4 (%s)" % data["answer"]["qclass"]
 
-	#data["answer"]["qtype"] = 123 # Debugging
-	if data["answer"]["qtype"] > 16:
-		warning = "QTYPE in answer is > 16 (%s)" % data["answer"]["qtype"]
-		retval.append(warning)
+def checkAnswers(answers):
+	"""
+	checkAnswers(answers): Check our answers.  This is an array that is returned (even if empty) in the same order as the actual answers.
+	"""
+
+	retval = []
+
+	for answer in answers:
+
+		sanity = []
+		headers = answer["headers"]
+
+		#headers["qclass"] = 0 # Debugging
+		if headers["qclass"] < 1:
+			warning = "QCLASS in answer is < 1 (%s)" % headers["qclass"]
+			sanity.append(warning)
+
+		#headers["qclass"] = 123 # Debugging
+		if headers["qclass"] > 4:
+			warning = "QCLASS in answer is > 4 (%s)" % headers["qclass"]
+			sanity.append(warning)
+
+		#headers["qtype"] = 123 # Debugging
+		if headers["qtype"] > 16:
+			warning = "QTYPE in answer is > 16 (%s)" % headers["qtype"]
+			sanity.append(warning)
+
+		retval.append(sanity)
 
 	return(retval)
+
 
 

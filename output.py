@@ -32,6 +32,8 @@ def printResponseText(response):
 	printResponseText(response): Print up our response as text.
 	"""
 
+	sanity = response["sanity"]
+
 	question = response["question"]
 	print("Question")
 	print("========")
@@ -41,7 +43,20 @@ def printResponseText(response):
 
 	print("")
 
-	header = response["header"]
+	printHeader(response["header"], sanity["header"])
+
+	print("")
+
+	printAnswers(response["answers"], sanity["answers"])
+
+	print("")
+
+
+def printHeader(header, sanity):
+	"""
+	printHeader(header): Print up our headers
+	"""
+
 	text = header["header_text"]
 	print("Header")
 	print("======")
@@ -50,38 +65,42 @@ def printResponseText(response):
 	print("   Answers:            %d" % int(header["num_answers"]))
 	print("   Authority records:  %d" % (int(header["num_authority_records"])))
 	print("   Additional records: %d" % (int(header["num_additional_records"])))
-	print("   QR:     %s" % text["qr"])
-	print("   AA:     %s" % text["aa"])
-	print("   TC:     %s" % text["tc"])
-	print("   RD:     %s" % text["rd"])
-	print("   RA:     %s" % text["ra"])
-	print("   OPCODE: %s" % text["opcode"])
-	print("   RCODE:  %s" % text["rcode"])
+	print("   QR:      %s" % text["qr"])
+	print("   AA:      %s" % text["aa"])
+	print("   TC:      %s" % text["tc"])
+	print("   RD:      %s" % text["rd"])
+	print("   RA:      %s" % text["ra"])
+	print("   OPCODE:  %s" % text["opcode"])
+	print("   RCODE:   %s" % text["rcode"])
 
-	print("")
+	if len(sanity):
+		for warning in sanity:
+			print("   WARNING: %s" % warning)
 
-	answer = response["answer"]
-	print("Answer")
-	print("======")
-	print("   Answer:     %s" % answer["rddata_text"])
-	print("   QCLASS:     %s (%s)" % (answer["qclass"], answer["qclass_text"]))
-	print("   QTYPE:      %s (%s)" % (answer["qtype"], answer["qtype_text"]))
-	print("   TTL:        %s" % (answer["ttl"]))
-	print("   Raw RRDATA: %s (len %s)" % (answer["rddata_hex"], answer["rdlength"]))
-	print("   Full RRDATA: %s" % (answer["rddata"]))
 
-	print("")
+def printAnswers(answers, sanity):
 
-	sanity = response["sanity"]
+	print("Answers")
+	print("=======")
 
-	if not len(sanity):
-		return
+	index = 0
+	for answer in answers:
 
-	print("Sanity Checks Failed")
-	print("====================")
-	for val in sanity:
-		print("   %s" % val)
+		headers = answer["headers"]
 
-	print("")
+		print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
+		print("   QCLASS:      %s (%s)" % (headers["qclass"], headers["qclass_text"]))
+		print("   QTYPE:       %s (%s)" % (headers["qtype"], headers["qtype_text"]))
+		print("   TTL:         %s" % (headers["ttl"]))
+		print("   Raw RRDATA:  %s (len %s)" % (answer["rddata_hex"], headers["rdlength"]))
+		print("   Full RRDATA: %s" % (answer["rddata"]))
+
+		sanity_answer = sanity[index]
+		if len(sanity_answer):
+			for warning in sanity_answer:
+				print("   WARNING:     %s" % warning)
+
+		index += 1
+		print("")
 
 
