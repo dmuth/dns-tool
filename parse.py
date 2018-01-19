@@ -564,6 +564,46 @@ def parseAnswerMx2(answer, data_all):
 	return(retval, text)
 
 
+def parseAnswerSoa2(answer, data_all):
+	"""
+	parseAnswerSoa2(answer, data_all): Parse an SOA answer. This usually happens when no record is found.
+	"""
+
+	retval = {}
+
+	index = 0
+
+	#
+	# Pull out the domain-name of the primary nameserver
+	#
+	mname, retval["sanity"] = extractDomainName2(answer, data_all)
+	index = len(mname) + 2
+
+	#
+	# Pull out the domain-name of the mailbox of the person resonsible.
+	#
+	rname, offset = extractDomainName2(answer[index:], data_all)
+	index += len(rname) + 2
+
+	#
+	# Now point to the start of our serial number and go from there.
+	#
+	serial = answer[index:]
+
+	retval["serial"] = struct.unpack(">L", serial[0:4])[0]
+	retval["refresh"] = struct.unpack(">L", serial[4:8])[0]
+	retval["retry"] = struct.unpack(">L", serial[8:12])[0]
+	retval["expire"] = struct.unpack(">L", serial[12:16])[0]
+	retval["minimum"] = struct.unpack(">L", serial[16:20])[0]
+
+	text = "%s %s %d %d %d %d %d" % (mname, rname,
+		retval["serial"], retval["refresh"], retval["retry"], retval["expire"], 
+		retval["minimum"])
+
+	return(retval, text)
+
+
+
 
 def parseAnswerBody(answer, data_all):
 	"""
@@ -584,8 +624,7 @@ def parseAnswerBody(answer, data_all):
 		#
 		# SOA - RFC 1035 3.3.13
 		#
-		#(retval["rddata"], retval["rddata_text"]) = parseAnswerSoa(data, retval["rddata_raw"])
-		print("TEST SOA")
+		(retval, retval_text) = parseAnswerSoa2(answer["rddata_raw"][12:], data_all)
 
 	elif answer["headers"]["qtype"] == 15:
 		#
