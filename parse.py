@@ -531,6 +531,10 @@ def parseAnswerIp2(answer, data_all):
 		+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
 
 	retval["ip"] = text
+	#
+	# TODO: There may be pointers even for A responses.  Will have to check into this later.
+	#
+	retval["sanity"] = []
 
 	return(retval, text)
 
