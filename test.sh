@@ -78,6 +78,14 @@ function parseArgs() {
 
 	done
 
+	#
+	# Didn't get any record types at all?  Bail!
+	#
+	if test ! "$RECORD_TYPES"
+	then
+		printSyntax
+	fi
+
 } # End of parseArgs()
 
 
