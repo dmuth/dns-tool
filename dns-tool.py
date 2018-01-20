@@ -35,6 +35,7 @@ parser.add_argument("--json", action = "store_true", help = "Output response as 
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
 parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
+parser.add_argument("--quiet", "-q", action = "store_true", help = "Quiet mode--only log errors")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
@@ -43,6 +44,9 @@ logger.info("Args: %s" % args)
 
 if args.debug:
 	logger.setLevel(logging.DEBUG)
+
+elif args.quiet:
+	logger.setLevel(logging.ERROR)
 
 
 def sendUdpMessage(message, address, port):
