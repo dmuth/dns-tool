@@ -40,7 +40,6 @@ parser.add_argument("--quiet", "-q", action = "store_true", help = "Quiet mode--
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
 args = parser.parse_args()
-logger.info("Args: %s" % args)
 
 if args.debug:
 	logger.setLevel(logging.DEBUG)
@@ -48,6 +47,7 @@ if args.debug:
 elif args.quiet:
 	logger.setLevel(logging.ERROR)
 
+logger.info("Args: %s" % args)
 
 def sendUdpMessage(message, address, port):
 	"""sendUdpMessage(message, address, port): sends a message to UDP server
