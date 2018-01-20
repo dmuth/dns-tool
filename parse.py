@@ -261,60 +261,6 @@ def getPointerAddress(data):
 	return(retval)
 
 
-def walkPointers(pointer, data):
-	"""
-	walkPointers(pointer, data): Follow our pointers and return a string with the data we got.
-	"""
-
-	retval = ""
-
-	beenhere = {}
-	#beenhere[56] = True # Debugging
-
-	while True:
-
-		if pointer in beenhere:
-			logger.error("walkPointers(): We were previously at this pointer, bailing out! pointer=%s, beenhere=%s" % (
-				pointer, beenhere))
-		beenhere[pointer] = True
-
-		length = int(ord(data[pointer]))
-
-		if length == 0:
-			#
-			# We're at the end of the domain-name
-			#
-			break
-
-		elif length & 0b11000000:
-			#
-			# This is *another* pointer, so we need to follow it...
-			#
-
-			pointer_old = pointer
-			pointer = getPointerAddress(data[pointer:pointer + 2])
-			logger.debug("Pointer found!  Raw value: %s, interpreted value: %d" % (
-				formatHex(data[pointer_old:pointer_old + 2]), pointer))
-
-		else:
-			#
-			# Chop off the first byte and get our label
-			#
-			pointer += 1
-			answer = data[pointer:pointer + length]
-
-			if retval:
-				retval += "."
-			retval += answer
-
-			#
-			# Now go to the next label
-			#
-			pointer += length
-
-	return(retval)
-
-
 def extractDomainName(answer, data_all, debug_bad_pointer = False):
 	"""
 	extractDomainName(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
@@ -352,21 +298,14 @@ def extractDomainName(answer, data_all, debug_bad_pointer = False):
 				sanity.append("Bad pointer! Expected value of 192, got %d!" % length)
 				break
 
-			#
-			# This is actually a pointer, so follow it!
-			#
-			if retval:
-				retval += "."
-
 			pointer = getPointerAddress(answer[0:2])
 			logger.debug("Pointer found!  Raw value: %s, interpreted value: %d" % (
 				formatHex(answer[0:2]), pointer))
-			retval += walkPointers(pointer, data_all)
+
+			length = int(ord(data_all[pointer]))
+			answer = data_all[pointer:]
+			#print("TEST POINTER", length, answer)
 			
-			break
-
-
-
 		#
 		# Chop off the first byte and get our answer
 		#
