@@ -81,7 +81,7 @@ def sendUdpMessage(message, address, port):
 		# Send us past the headers and question and parse the answer(s).
 		#
 		answer_index = 12 + retval["question"]["question_length"]
-		retval["answers"] = parse.parseAnswers2(data, question_length = retval["question"]["question_length"])
+		retval["answers"] = parse.parseAnswers(data, question_length = retval["question"]["question_length"])
 
 		#
 		# Do a sanity check on the results.

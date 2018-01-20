@@ -212,48 +212,6 @@ def parseQclass(qclass):
 	return(retval)
 
 
-def extractDomainName(data, answer):
-	"""
-	extractDomainName(data) - Extract a domain-name as defined in RFC 1035 3.3
-	
-	In more detail, this function takes a string which consists of 1 or more bytes
-	which indicate length, followed by a string.  It is terminated by a byte
-	of value 0x00.
-	"""
-
-	print("TEST EXTRACT", data)
-	retval = ""
-	offset = 0
-
-	while True:
-
-		length = int(ord(answer[0]))
-		offset += 1
-
-		if length == 0:
-			answer = answer[1:]
-			break
-
-		#
-		# Chop off the first byte and get our question
-		#
-		answer = answer[1:]
-		string = answer[0:length]
-
-		if retval:
-			retval += "."
-		retval += string
-
-		#
-		# Now chop off the string and repeat!
-		#
-		answer = answer[length:]
-		offset += length
-
-	return(retval, offset)
-
-
-
 def parseQuestion(data):
 	"""
 	parseQuestion(): Parse the question part of the data
@@ -270,7 +228,7 @@ def parseQuestion(data):
 	# The offset can be calculated by adding 2 the value we extract, 1 byte for the leading
 	# length byte and 1 byte for the final 0x00.
 	#
-	(retval["question"], _) = extractDomainName2(data, data)
+	(retval["question"], _) = extractDomainName(data, data)
 	domain_offset = len(retval["question"]) + 2
 
 	#
@@ -288,67 +246,6 @@ def parseQuestion(data):
 	retval["question_length"] = len_orig - len(data)
 
 	return(retval)
-
-
-
-def parseAnswerIp(data, answer):
-	"""
-	parseAnswerIp(data): Grab our IP address from an answer to an A query
-	"""
-
-	rddata = {}
-
-	text = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
-		+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
-
-	rddata["ip"] = text
-
-	return(rddata, text)
-
-
-def parseAnswerSoa(data, answer):
-	"""
-	parseAnswerSoa(data): Grab our SOA record from the answer to a query
-	"""
-
-	rddata = {}
-
-	mname, offset = extractDomainName(data, answer)
-	answer = answer[offset:]
-
-	rname, offset = extractDomainName(data, answer)
-	answer = answer[offset:]
-
-	rddata["serial"] = struct.unpack(">L", data[0:4])[0]
-	rddata["refresh"] = struct.unpack(">L", data[4:8])[0]
-	rddata["retry"] = struct.unpack(">L", data[8:12])[0]
-	rddata["expire"] = struct.unpack(">L", data[12:16])[0]
-	rddata["minimum"] = struct.unpack(">L", data[16:20])[0]
-
-	text = "%s %s %d %d %d %d %d" % (mname, rname, 
-		rddata["serial"], rddata["refresh"], rddata["retry"], rddata["expire"], 
-		rddata["minimum"])
-
-	return(rddata, text)
-
-def parseAnswerMx(data, answer):
-	"""
-	parseAnswerMx(data): Grab or MX record from the answer to a query.
-	"""
-
-	rddata = {}
-
-	preference = struct.unpack(">H", answer[0:2])[0]
-	answer = answer[2:]
-
-	exchange, offset = extractDomainName(data, answer)
-
-	rddata["preference"] = preference
-	rddata["exchange"] = exchange
-
-	text = "%s %s" % (preference, exchange)
-
-	return(rddata, text)
 
 
 def getPointerAddress(data):
@@ -418,9 +315,9 @@ def walkPointers(pointer, data):
 	return(retval)
 
 
-def extractDomainName2(answer, data_all, debug_bad_pointer = False):
+def extractDomainName(answer, data_all, debug_bad_pointer = False):
 	"""
-	extractDomainName2(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
+	extractDomainName(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
 	
 	In more detail, this function takes a string which consists of 1 or more bytes
 	which indicate length, followed by a string.  It is terminated by a byte
@@ -520,9 +417,9 @@ def parseAnswerHeaders(data):
 	return(retval)
 
 
-def parseAnswerIp2(answer, data_all):
+def parseAnswerIp(answer, data_all):
 	"""
-	parseAnswerIp2(data): Grab our IP address from an answer to an A query
+	parseAnswerIp(data): Grab our IP address from an answer to an A query
 	"""
 
 	retval = {}
@@ -539,9 +436,9 @@ def parseAnswerIp2(answer, data_all):
 	return(retval, text)
 
 
-def parseAnswerMx2(answer, data_all):
+def parseAnswerMx(answer, data_all):
 	"""
-	parseAnswerMx2(answer, data_all): Parse an MX answer.
+	parseAnswerMx(answer, data_all): Parse an MX answer.
 	
 	answer - The answer body (no headers)
 	data_all - The entire response packet
@@ -553,8 +450,7 @@ def parseAnswerMx2(answer, data_all):
 	preference = struct.unpack(">H", answer[0:2])[0]
 	answer = answer[2:]
 
-	(exchange, retval["sanity"]) = extractDomainName2(answer, data_all)
-	#(exchange, retval["sanity"]) = extractDomainName2(answer, data_all, debug_bad_pointer = True) # Debugging
+	(exchange, retval["sanity"]) = extractDomainName(answer, data_all)
 
 	retval["preference"] = preference
 	retval["exchange"] = exchange
@@ -564,9 +460,9 @@ def parseAnswerMx2(answer, data_all):
 	return(retval, text)
 
 
-def parseAnswerSoa2(answer, data_all):
+def parseAnswerSoa(answer, data_all):
 	"""
-	parseAnswerSoa2(answer, data_all): Parse an SOA answer. This usually happens when no record is found.
+	parseAnswerSoa(answer, data_all): Parse an SOA answer. This usually happens when no record is found.
 	"""
 
 	retval = {}
@@ -576,13 +472,13 @@ def parseAnswerSoa2(answer, data_all):
 	#
 	# Pull out the domain-name of the primary nameserver
 	#
-	mname, retval["sanity"] = extractDomainName2(answer, data_all)
+	mname, retval["sanity"] = extractDomainName(answer, data_all)
 	index = len(mname) + 2
 
 	#
 	# Pull out the domain-name of the mailbox of the person resonsible.
 	#
-	rname, offset = extractDomainName2(answer[index:], data_all)
+	rname, offset = extractDomainName(answer[index:], data_all)
 	index += len(rname) + 2
 
 	#
@@ -618,25 +514,25 @@ def parseAnswerBody(answer, data_all):
 
 	if answer["headers"]["qtype"] == 1:
 		# IP Address
-		(retval, retval_text) = parseAnswerIp2(answer["rddata_raw"][12:], data_all)
+		(retval, retval_text) = parseAnswerIp(answer["rddata_raw"][12:], data_all)
 
 	elif answer["headers"]["qtype"] == 6:
 		#
 		# SOA - RFC 1035 3.3.13
 		#
-		(retval, retval_text) = parseAnswerSoa2(answer["rddata_raw"][12:], data_all)
+		(retval, retval_text) = parseAnswerSoa(answer["rddata_raw"][12:], data_all)
 
 	elif answer["headers"]["qtype"] == 15:
 		#
 		# MX - RFC 1035 3.3.9
 		#
-		(retval, retval_text) = parseAnswerMx2(answer["rddata_raw"][12:], data_all)
+		(retval, retval_text) = parseAnswerMx(answer["rddata_raw"][12:], data_all)
 
 
 	return(retval, retval_text)
 
 
-def parseAnswers2(data, question_length = 0):
+def parseAnswers(data, question_length = 0):
 	"""
 	parseAnswers(data): Parse all answers given to a query
 	"""
@@ -687,65 +583,4 @@ def parseAnswers2(data, question_length = 0):
 
 	return(retval)
 	
-
-
-
-def parseAnswer(data):
-	"""
-	parseAnswer(): Parse the answer part of the response
-
-	The data passed in is the start of the answer, in the Resource Record format
-	"""
-
-	retval = {}
-
-	#
-	# RR bytes:
-	#
-	# 0-1: Bits 2-15 contain the offset to the queston that this answer answers.
-	#	I will write code to handle this later.
-	# 2-3: Type
-	# 4-5: Class
-	# 6-7: Unused(?)
-	# 8-9: TTL
-	# 10-11: RDLENGTH
-	# 12+: RDDATA (The answer!)
-	#
-
-	retval["qtype"] = (256 * ord(data[2])) + ord(data[3])
-	retval["qclass"] = (256 * ord(data[4])) + ord(data[5])
-
-	retval["qtype_text"] = parseQtype(retval["qtype"])
-	retval["qclass_text"] = parseQclass(retval["qclass"])
-
-	retval["ttl"] = (256 * ord(data[8])) + ord(data[9])
-	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
-	print("TEST RDLENGTH", retval["rdlength"], data[10], data[11])
-
-	answer_end = 12 + retval["rdlength"]
-
-	retval["rddata_raw"] = data[12:answer_end]
-	print("TEST RAW", retval["rddata_raw"])
-
-	if retval["qtype"] == 1:
-		# IP Address
-		(retval["rddata"], retval["rddata_text"]) = parseAnswerIp(data, retval["rddata_raw"])
-
-	elif retval["qtype"] == 6:
-		#
-		# SOA - RFC 1035 3.3.13
-		#
-		(retval["rddata"], retval["rddata_text"]) = parseAnswerSoa(data, retval["rddata_raw"])
-
-	elif retval["qtype"] == 15:
-		#
-		# MX - RFC 1035 3.3.9
-		#
-		(retval["rddata"], retval["rddata_text"]) = parseAnswerMx(data, retval["rddata_raw"])
-
-
-	retval["rddata_hex"] = binascii.hexlify(retval["rddata_raw"]).decode("utf-8")
-	del retval["rddata_raw"]
-
-	return(retval, answer_end)
 
