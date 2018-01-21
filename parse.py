@@ -278,6 +278,8 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 
 	retval = ""
 	sanity = []
+	beenhere = {}
+	#beenhere[82] = True # Debugging
 
 	while True:
 
@@ -300,6 +302,13 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 			pointer = getPointerAddress(data[index:index + 2])
 			logger.debug("Pointer found!  Raw value: %s, interpreted value: %d" % (
 				formatHex(data[index:index + 2]), pointer))
+
+			if pointer in beenhere:
+				logger.warn("extractDomainName(): We were previously at this pointer, bailing out! "
+					+ "pointer=%s, beenhere=%s" % (pointer, beenhere))
+				break
+
+			beenhere[pointer] = True
 
 			length = int(ord(data[pointer]))
 			index = pointer
