@@ -212,7 +212,7 @@ def parseQclass(qclass):
 	return(retval)
 
 
-def parseQuestion(data):
+def parseQuestion(index, data):
 	"""
 	parseQuestion(): Parse the question part of the data
 	"""
@@ -221,6 +221,7 @@ def parseQuestion(data):
 	retval["question"] = ""
 
 	len_orig = len(data)
+	index_start = index
 
 	#
 	# The domain-name in the question is in the same format as it is in the answer.
@@ -228,13 +229,13 @@ def parseQuestion(data):
 	# The offset can be calculated by adding 2 the value we extract, 1 byte for the leading
 	# length byte and 1 byte for the final 0x00.
 	#
-	(retval["question"], _) = extractDomainName(data, data)
-	domain_offset = len(retval["question"]) + 2
+	(retval["question"], _) = extractDomainName(index, data)
+	index += len(retval["question"]) + 2
 
 	#
 	# Now pull out the QTYPE and QCLASS.
 	#
-	data = data[domain_offset:]
+	data = data[index:]
 
 	retval["qtype"] = (256 * ord(data[0])) + ord(data[1])
 	retval["qclass"] = (256 * ord(data[2])) + ord(data[3])
@@ -243,7 +244,9 @@ def parseQuestion(data):
 	retval["qtype_text"] = parseQtype(retval["qtype"], question = True)
 	retval["qclass_text"] = parseQclass(retval["qclass"])
 
-	retval["question_length"] = len_orig - len(data)
+	index += 4
+
+	retval["question_length"] = index - index_start
 
 	return(retval)
 
@@ -261,7 +264,7 @@ def getPointerAddress(data):
 	return(retval)
 
 
-def extractDomainName(answer, data_all, debug_bad_pointer = False):
+def extractDomainName(index, data, debug_bad_pointer = False):
 	"""
 	extractDomainName(answer, data) - Extract a domain-name as defined in RFC 1035 3.3
 	
@@ -278,15 +281,11 @@ def extractDomainName(answer, data_all, debug_bad_pointer = False):
 
 	while True:
 
-		length = int(ord(answer[0]))
+		length = int(ord(data[index]))
 		if debug_bad_pointer:
 			length = 0b01000000 # Debugging
 
 		if length == 0:
-			#
-			# We're at the end of the domain-name
-			#
-			answer = answer[1:]
 			break
 
 		elif length & 0b11000000:
@@ -298,28 +297,29 @@ def extractDomainName(answer, data_all, debug_bad_pointer = False):
 				sanity.append("Bad pointer! Expected value of 192, got %d!" % length)
 				break
 
-			pointer = getPointerAddress(answer[0:2])
+			pointer = getPointerAddress(data[index:index + 2])
 			logger.debug("Pointer found!  Raw value: %s, interpreted value: %d" % (
-				formatHex(answer[0:2]), pointer))
+				formatHex(data[index:index + 2]), pointer))
 
-			length = int(ord(data_all[pointer]))
-			answer = data_all[pointer:]
-			#print("TEST POINTER", length, answer)
-			
+			length = int(ord(data[pointer]))
+			index = pointer
+
 		#
 		# Chop off the first byte and get our answer
 		#
-		answer = answer[1:]
+		answer = data[index + 1:]
 		string = answer[0:length]
 
 		if retval:
 			retval += "."
 		retval += string
 
+		index += 1 + length
+
 		#
 		# Now chop off the string and repeat!
 		#
-		answer = answer[length:]
+		#answer = answer[length:]
 
 	return(retval, sanity)
 
@@ -356,7 +356,7 @@ def parseAnswerHeaders(data):
 	return(retval)
 
 
-def parseAnswerIp(answer, data_all):
+def parseAnswerIp(answer, index, data):
 	"""
 	parseAnswerIp(data): Grab our IP address from an answer to an A query
 	"""
@@ -375,12 +375,12 @@ def parseAnswerIp(answer, data_all):
 	return(retval, text)
 
 
-def parseAnswerMx(answer, data_all):
+def parseAnswerMx(answer, index, data):
 	"""
-	parseAnswerMx(answer, data_all): Parse an MX answer.
+	parseAnswerMx(answer, data): Parse an MX answer.
 	
 	answer - The answer body (no headers)
-	data_all - The entire response packet
+	data - The entire response packet
 	
 	"""
 
@@ -389,7 +389,8 @@ def parseAnswerMx(answer, data_all):
 	preference = struct.unpack(">H", answer[0:2])[0]
 	answer = answer[2:]
 
-	(exchange, retval["sanity"]) = extractDomainName(answer, data_all)
+	index += 12 + 2
+	(exchange, retval["sanity"]) = extractDomainName(index, data)
 
 	retval["preference"] = preference
 	retval["exchange"] = exchange
@@ -399,31 +400,35 @@ def parseAnswerMx(answer, data_all):
 	return(retval, text)
 
 
-def parseAnswerSoa(answer, data_all):
+def parseAnswerSoa(answer, index, data):
 	"""
-	parseAnswerSoa(answer, data_all): Parse an SOA answer. This usually happens when no record is found.
+	parseAnswerSoa(answer, index, data): Parse an SOA answer. This usually happens when no record is found.
+	
+	answer - A string containing just the answer
+	index - Offset of where we are within the DNS response
+	data - The entire packet
 	"""
 
 	retval = {}
 
-	index = 0
+	#
+	# Skip the header
+	#
+	index += 12
 
-	#
-	# Pull out the domain-name of the primary nameserver
-	#
-	mname, retval["sanity"] = extractDomainName(answer, data_all)
-	index = len(mname) + 2
+	mname, retval["sanity"] = extractDomainName(index, data)
+	index += len(mname) + 2
 
 	#
 	# Pull out the domain-name of the mailbox of the person resonsible.
 	#
-	rname, offset = extractDomainName(answer[index:], data_all)
+	rname, offset = extractDomainName(index, data)
 	index += len(rname) + 2
 
 	#
 	# Now point to the start of our serial number and go from there.
 	#
-	serial = answer[index:]
+	serial = data[index:]
 
 	retval["serial"] = struct.unpack(">L", serial[0:4])[0]
 	retval["refresh"] = struct.unpack(">L", serial[4:8])[0]
@@ -438,34 +443,32 @@ def parseAnswerSoa(answer, data_all):
 	return(retval, text)
 
 
-
-
-def parseAnswerBody(answer, data_all):
+def parseAnswerBody(answer, index, data):
 	"""
-	parseAnswerBody(answer, data_all): Extract the answer body.
+	parseAnswerBody(answer, index, data): Extract the answer body.
 
 	answer - The data that corresponds to the specific answer
-	data_all - The data for the entire answer packet, which is used if there is compression/pointers
+	index - Offset of where we are in the DNS response
+	data - The data for the entire answer packet, which is used if there is compression/pointers
 	"""
 
 	retval = ""
 	retval_text = ""
 
 	if answer["headers"]["qtype"] == 1:
-		# IP Address
-		(retval, retval_text) = parseAnswerIp(answer["rddata_raw"][12:], data_all)
+		(retval, retval_text) = parseAnswerIp(answer["rddata_raw"][12:], index, data)
 
 	elif answer["headers"]["qtype"] == 6:
 		#
 		# SOA - RFC 1035 3.3.13
 		#
-		(retval, retval_text) = parseAnswerSoa(answer["rddata_raw"][12:], data_all)
+		(retval, retval_text) = parseAnswerSoa(answer["rddata_raw"][12:], index, data)
 
 	elif answer["headers"]["qtype"] == 15:
 		#
 		# MX - RFC 1035 3.3.9
 		#
-		(retval, retval_text) = parseAnswerMx(answer["rddata_raw"][12:], data_all)
+		(retval, retval_text) = parseAnswerMx(answer["rddata_raw"][12:], index, data)
 
 
 	return(retval, retval_text)
@@ -486,17 +489,20 @@ def parseAnswers(data, question_length = 0):
 		answer = {}
 		logger.debug("parseAnswers(): Index is currently %d" % index)
 	
-		# Function to grab answer headers
-	    	# assign rddata_raw to stuff past headers to end of rdlength
-
 		answer["headers"] = parseAnswerHeaders(data[index:])
 
+		#
+		# Advance our index to the start of the next answer, then put this entire
+		# answer into answer["rddata_raw"]
+		#
 		index_old = index
-		index = index + 12 + answer["headers"]["rdlength"]
+		index_next = index + 12 + answer["headers"]["rdlength"]
+		answer["rddata_raw"] = data[index:index_next]
 
-		answer["rddata_raw"] = data[index_old:index]
+		#(answer["rddata"], answer["rddata_text"]) = parseAnswerBody(answer, data)
+		(answer["rddata"], answer["rddata_text"]) = parseAnswerBody(answer, index, data)
+		index = index_next
 
-		(answer["rddata"], answer["rddata_text"]) = parseAnswerBody(answer, data)
 		#
 		# This is a bit of hack, but we want to grab the sanity data from the rddata 
 		# dictonary and put it into its own dictionary member so that the sanity

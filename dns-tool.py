@@ -75,7 +75,7 @@ def sendUdpMessage(message, address, port):
 		request_id = parse.getRequestId(message)
 
 		retval["header"] = parse.parseHeader(data[0:12])
-		retval["question"] = parse.parseQuestion(data[12:])
+		retval["question"] = parse.parseQuestion(12, data)
 
 		#
 		# Send us past the headers and question and parse the answer(s).
@@ -111,7 +111,7 @@ header = create.createHeader()
 logger.debug(parse.parseHeader(header))
 
 question = create.createQuestion(args.query, args.query_type)
-logger.debug(parse.parseQuestion(question))
+logger.debug(parse.parseQuestion(0, question))
 
 message = header + question
 
