@@ -74,13 +74,13 @@ def parseHeaderText(header):
 		retval["qr"] = "Unknown! (%s)" % header["qr"]
 
 	if header["opcode"] == 0:
-		retval["opcode"] = "Standard query"
+		retval["opcode_text"] = "Standard query"
 	elif header["opcode"] == 1:
-		retval["opcode"] = "Inverse query"
+		retval["opcode_text"] = "Inverse query"
 	elif header["opcode"] == 2:
-		retval["opcode"] = "Server status request"
+		retval["opcode_text"] = "Server status request"
 	else:
-		retval["opcode"] = "Unknown! (%s)" % header["opcode"]
+		retval["opcode_text"] = "Unknown! (%s)" % header["opcode"]
 
 	if header["aa"] == 0:
 		retval["aa"] = "Server isn't an authority"

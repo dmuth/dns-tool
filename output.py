@@ -71,8 +71,8 @@ def printHeader(header, sanity):
 	print("   TC:      %s" % text["tc"])
 	print("   RD:      %s" % text["rd"])
 	print("   RA:      %s" % text["ra"])
-	print("   OPCODE:  %d - %s" % (header["header"]["rcode"], text["opcode"]))
-	print("   RCODE:   %s" % text["rcode_text"])
+	print("   OPCODE:  %d - %s" % (header["header"]["opcode"], text["opcode_text"]))
+	print("   RCODE:   %d - %s" % (header["header"]["rcode"], text["rcode_text"]))
 
 	if len(sanity):
 		for warning in sanity:
