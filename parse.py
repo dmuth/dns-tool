@@ -424,6 +424,30 @@ def parseAnswerCname(answer, index, data):
 	return(retval, text)
 
 
+def parseAnswerTxt(answer, index, data):
+	"""
+	parseAnswerCname(answer, data): Parse a Cname answer.
+	
+	answer - The answer body (no headers)
+	data - The entire response packet
+	
+	"""
+
+	retval = {}
+	retval["sanity"] = []
+
+	#
+	# First byte is the character count, but we already have the exact answer
+	# thanks to rdlength, so we can skip that.
+	#
+	answer = answer[1:]
+
+	text = answer
+	retval["text"] = answer
+
+	return(retval, text)
+
+
 def parseAnswerMx(answer, index, data):
 	"""
 	parseAnswerMx(answer, data): Parse an MX answer.
@@ -525,6 +549,12 @@ def parseAnswerBody(answer, index, data):
 		#
 		(retval, retval_text) = parseAnswerMx(answer["rddata_raw"][12:], index, data)
 
+	elif answer["headers"]["type"] == 16:
+		#
+		# MX - RFC 1035 3.3.14
+		#
+		(retval, retval_text) = parseAnswerTxt(answer["rddata_raw"][12:], index, data)
+
 	else:
 		retval["sanity"] = []
 		logger.warn("Unknown answer QTYPE: %s" % answer["headers"]["type"])
@@ -558,7 +588,6 @@ def parseAnswers(data, question_length = 0):
 		index_next = index + 12 + answer["headers"]["rdlength"]
 		answer["rddata_raw"] = data[index:index_next]
 
-		#(answer["rddata"], answer["rddata_text"]) = parseAnswerBody(answer, data)
 		(answer["rddata"], answer["rddata_text"]) = parseAnswerBody(answer, index, data)
 		index = index_next
 
