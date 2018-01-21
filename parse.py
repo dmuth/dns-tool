@@ -374,11 +374,11 @@ def parseAnswerHeaders(data):
 	# 12+: RDDATA (The answer!)
 	#
 
-	retval["qtype"] = (256 * ord(data[2])) + ord(data[3])
-	retval["qclass"] = (256 * ord(data[4])) + ord(data[5])
+	retval["type"] = (256 * ord(data[2])) + ord(data[3])
+	retval["class"] = (256 * ord(data[4])) + ord(data[5])
 
-	retval["qtype_text"] = parseQtype(retval["qtype"])
-	retval["qclass_text"] = parseQclass(retval["qclass"])
+	retval["type_text"] = parseQtype(retval["type"])
+	retval["class_text"] = parseQclass(retval["class"])
 
 	retval["ttl"] = (256 * ord(data[8])) + ord(data[9])
 	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
@@ -485,16 +485,16 @@ def parseAnswerBody(answer, index, data):
 	retval = {}
 	retval_text = ""
 
-	if answer["headers"]["qtype"] == 1:
+	if answer["headers"]["type"] == 1:
 		(retval, retval_text) = parseAnswerIp(answer["rddata_raw"][12:], index, data)
 
-	elif answer["headers"]["qtype"] == 6:
+	elif answer["headers"]["type"] == 6:
 		#
 		# SOA - RFC 1035 3.3.13
 		#
 		(retval, retval_text) = parseAnswerSoa(answer["rddata_raw"][12:], index, data)
 
-	elif answer["headers"]["qtype"] == 15:
+	elif answer["headers"]["type"] == 15:
 		#
 		# MX - RFC 1035 3.3.9
 		#
@@ -502,7 +502,7 @@ def parseAnswerBody(answer, index, data):
 
 	else:
 		retval["sanity"] = []
-		logger.warn("Unknown answer QTYPE: %s" % answer["headers"]["qtype"])
+		logger.warn("Unknown answer QTYPE: %s" % answer["headers"]["type"])
 
 
 	return(retval, retval_text)

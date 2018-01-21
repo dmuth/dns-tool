@@ -92,8 +92,8 @@ def printAnswers(answers, sanity):
 			meta = answer["rddata"]["meta"]
 
 		print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
-		print("   QCLASS:      %s (%s)" % (headers["qclass"], headers["qclass_text"]))
-		print("   QTYPE:       %s (%s)" % (headers["qtype"], headers["qtype_text"]))
+		print("   CLASS:       %s (%s)" % (headers["class"], headers["class_text"]))
+		print("   TYPE:        %s (%s)" % (headers["type"], headers["type_text"]))
 		print("   TTL:         %s" % (headers["ttl"]))
 
 		if "pointers" in meta and len(meta["pointers"]):

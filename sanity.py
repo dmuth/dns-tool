@@ -64,19 +64,19 @@ def checkAnswers(answers):
 		sanity = answer["sanity"]
 		headers = answer["headers"]
 
-		#headers["qclass"] = 0 # Debugging
-		if headers["qclass"] < 1:
-			warning = "QCLASS in answer is < 1 (%s)" % headers["qclass"]
+		#headers["class"] = 0 # Debugging
+		if headers["class"] < 1:
+			warning = "QCLASS in answer is < 1 (%s)" % headers["class"]
 			sanity.append(warning)
 
-		#headers["qclass"] = 123 # Debugging
-		if headers["qclass"] > 4:
-			warning = "QCLASS in answer is > 4 (%s)" % headers["qclass"]
+		#headers["class"] = 123 # Debugging
+		if headers["class"] > 4:
+			warning = "QCLASS in answer is > 4 (%s)" % headers["class"]
 			sanity.append(warning)
 
-		#headers["qtype"] = 123 # Debugging
-		if headers["qtype"] > 16:
-			warning = "QTYPE in answer is > 16 (%s)" % headers["qtype"]
+		#headers["type"] = 123 # Debugging
+		if headers["type"] > 16:
+			warning = "QTYPE in answer is > 16 (%s)" % headers["type"]
 			sanity.append(warning)
 
 		retval.append(sanity)
