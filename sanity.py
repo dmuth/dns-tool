@@ -74,11 +74,6 @@ def checkAnswers(answers):
 			warning = "QCLASS in answer is > 4 (%s)" % headers["class"]
 			sanity.append(warning)
 
-		#headers["type"] = 123 # Debugging
-		if headers["type"] > 16:
-			warning = "QTYPE in answer is > 16 (%s)" % headers["type"]
-			sanity.append(warning)
-
 		retval.append(sanity)
 
 	return(retval)
