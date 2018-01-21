@@ -27,6 +27,7 @@ qtypes = {
 	14: "MINFO (Mailbox or mail list information)",
 	15: "MX (Mail Exchange)",
 	16: "TXT (Text string)",
+	28: "AAAA (Ipv6 Address)",
 	252: "AXFR (Request for zone transfer)",
 	253: "MAILB (Request for mailbox-related records)",
 	254: "MAILA (Request for mail agent RRs - obseleted by MX)",
@@ -34,14 +35,18 @@ qtypes = {
 	}
 
 
-def formatHex(data):
+def formatHex(data, delimiter = " ", group_size = 2):
 	"""
-	formatHex(hex): Returns a nice hex version of a string
+	formatHex(data, delimiter = " ", group_size = 2): Returns a nice hex version of a string
+
+	data - The string to turn into hex values
+	delimiter - The delimter between hex values
+	group_size - How many characters do we want in a group?
 	"""
 
 	# Python 2
 	hex = binascii.hexlify(data)
-	retval = " ".join(hex[i:i+2] for i in range(0, len(hex), 2))
+	retval = delimiter.join(hex[i:i + group_size] for i in range(0, len(hex), group_size))
 
 	# Python 3
 	#if not isinstance(data, bytes):
@@ -49,7 +54,7 @@ def formatHex(data):
 	#else:
 	#	hex = data.hex()
 	#
-	#retval = " ".join(hex[i:i+2] for i in range(0, len(hex), 2))
+	#retval = delimiter.join(hex[i:i + group_size] for i in range(0, len(hex), group_size))
 
 	return(retval)
 
@@ -386,9 +391,9 @@ def parseAnswerHeaders(data):
 	return(retval)
 
 
-def parseAnswerIp(answer, index, data):
+def parseAnswerA(answer, index, data):
 	"""
-	parseAnswerIp(data): Grab our IP address from an answer to an A query
+	parseAnswerA(data): Grab our IP address from an answer to an A query
 	"""
 
 	retval = {}
@@ -400,6 +405,21 @@ def parseAnswerIp(answer, index, data):
 	#
 	# TODO: There may be pointers even for A responses.  Will have to check into this later.
 	#
+	retval["sanity"] = []
+
+	return(retval, text)
+
+
+def parseAnswerAAAA(answer, index, data):
+	"""
+	parseAnswerAAAA(data): Grab our IP address from an answer to an A query
+	"""
+
+	retval = {}
+
+	text = formatHex(answer, delimiter = ":", group_size = 4)
+
+	retval["ip"] = text
 	retval["sanity"] = []
 
 	return(retval, text)
@@ -529,7 +549,7 @@ def parseAnswerBody(answer, index, data):
 	retval_text = ""
 
 	if answer["headers"]["type"] == 1:
-		(retval, retval_text) = parseAnswerIp(answer["rddata_raw"][12:], index, data)
+		(retval, retval_text) = parseAnswerA(answer["rddata_raw"][12:], index, data)
 
 	elif answer["headers"]["type"] == 5:
 		#
@@ -554,6 +574,12 @@ def parseAnswerBody(answer, index, data):
 		# MX - RFC 1035 3.3.14
 		#
 		(retval, retval_text) = parseAnswerTxt(answer["rddata_raw"][12:], index, data)
+
+	elif answer["headers"]["type"] == 28:
+		#
+		# AAAA - RFC 3596 2.2
+		#
+		(retval, retval_text) = parseAnswerAAAA(answer["rddata_raw"][12:], index, data)
 
 	else:
 		retval["sanity"] = []

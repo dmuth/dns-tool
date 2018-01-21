@@ -30,6 +30,7 @@ query_types = {
 	"minfo": 14,
 	"mx": 15,
 	"txt": 16,
+	"aaaa": 28,
 	"axfr": 252,
 	"mailb": 253,
 	"maila": 254,
@@ -139,6 +140,8 @@ def createQuestion(q, query_type):
 
 	if query_type in query_types:
 		qtype = query_types[query_type]
+	else:
+		raise Exception("Unknown query_type: %s" % query_type)
 
 	retval += convertTo16Bit(qtype)
 
