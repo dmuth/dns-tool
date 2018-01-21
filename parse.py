@@ -288,7 +288,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 	meta["pointers"] = []
 
 	beenhere = {}
-	#beenhere[82] = True # Debugging
+	#beenhere[21] = True # Debugging
 
 	while True:
 
@@ -315,6 +315,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 			if pointer in beenhere:
 				logger.warn("extractDomainName(): We were previously at this pointer, bailing out! "
 					+ "pointer=%s, beenhere=%s" % (pointer, beenhere))
+				sanity.append("Previously at pointer %s, bailing out! (Beenhere: %s)" % (pointer, beenhere))
 				break
 
 			beenhere[pointer] = True
