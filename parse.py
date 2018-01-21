@@ -289,7 +289,6 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 	retval = ""
 	sanity = []
 	meta = {}
-	meta["index_start"] = index
 	meta["pointers"] = []
 
 	beenhere = {}
@@ -326,6 +325,14 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 			beenhere[pointer] = True
 
 			length = int(ord(data[pointer]))
+
+			#
+			# If this is our first pointer, make a note of what's two bytes after that, as 
+			# in an SOA response, that will be the start of our headers.
+			#
+			if not "index_after_first_pointer" in meta:
+				meta["index_after_first_pointer"] = index + 2
+
 			index = pointer
 
 		else:
@@ -525,14 +532,35 @@ def parseAnswerSoa(answer, index, data):
 	#
 	index += 12
 
-	(mname, retval["sanity"], _) = extractDomainName(index, data)
+	(mname, sanity_mname, meta_mname) = extractDomainName(index, data)
 	index += len(mname) + 2
 
 	#
 	# Pull out the domain-name of the mailbox of the person resonsible.
 	#
-	(rname, offset, _) = extractDomainName(index, data)
+	(rname, sanity_rname, meta_rname) = extractDomainName(index, data)
+
+	#
+	# Okay, so this requires a little explanation.
+	#
+	# If the rname doesn't have any pointers in it, then we just note the length
+	# and advance the index accordingly.
+	#
+	# But if the rname does have a pointer in it, the extractDomainName() function
+	# will note where the index should be after that first pointer, as that will
+	# be the start of the headers.  If that value is present, then that's what
+	# the index will be set to.
+	#
 	index += len(rname) + 2
+	if "index_after_first_pointer" in meta_rname:
+		index = meta_rname["index_after_first_pointer"]
+
+	#
+	# In this case, we're dropping the contents of meta_mname because
+	# it should never have a pointer in it.
+	#
+	retval["meta"] = meta_rname
+	retval["sanity"] = sanity_mname + sanity_rname
 
 	#
 	# Now point to the start of our serial number and go from there.
