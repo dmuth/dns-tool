@@ -87,14 +87,16 @@ def printAnswers(answers, sanity):
 	for answer in answers:
 
 		headers = answer["headers"]
-		meta = answer["rddata"]["meta"]
+		meta = {}
+		if "meta" in answer:
+			meta = answer["rddata"]["meta"]
 
 		print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
 		print("   QCLASS:      %s (%s)" % (headers["qclass"], headers["qclass_text"]))
 		print("   QTYPE:       %s (%s)" % (headers["qtype"], headers["qtype_text"]))
 		print("   TTL:         %s" % (headers["ttl"]))
 
-		if len(meta["pointers"]):
+		if "pointers" in meta and len(meta["pointers"]):
 			print("   Pointers:")
 			for pointer in meta["pointers"]:
 				print("      Pointer to offset %d, points to '%s'" % (pointer["pointer"], pointer["target"]))
