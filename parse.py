@@ -482,7 +482,7 @@ def parseAnswerBody(answer, index, data):
 	data - The data for the entire answer packet, which is used if there is compression/pointers
 	"""
 
-	retval = ""
+	retval = {}
 	retval_text = ""
 
 	if answer["headers"]["qtype"] == 1:
@@ -499,6 +499,10 @@ def parseAnswerBody(answer, index, data):
 		# MX - RFC 1035 3.3.9
 		#
 		(retval, retval_text) = parseAnswerMx(answer["rddata_raw"][12:], index, data)
+
+	else:
+		retval["sanity"] = []
+		logger.warn("Unknown answer QTYPE: %s" % answer["headers"]["qtype"])
 
 
 	return(retval, retval_text)
@@ -538,14 +542,18 @@ def parseAnswers(data, question_length = 0):
 		# dictonary and put it into its own dictionary member so that the sanity
 		# module can later extract it.
 		#
-		answer["sanity"] = answer["rddata"]["sanity"]
-		del answer["rddata"]["sanity"]
+		answer["sanity"] = {}
+		if "sanity" in answer:
+			answer["sanity"] = answer["rddata"]["sanity"]
+			del answer["rddata"]["sanity"]
 
 		#
 		# Deleting the raw data because it will choke when convered to JSON
 		#
-		answer["rddata_hex"] = formatHex(answer["rddata_raw"])
-		del answer["rddata_raw"]
+		answer["rddata_hex"] = {}
+		if "rddata_hex" in answer:
+			answer["rddata_hex"] = formatHex(answer["rddata_raw"])
+			del answer["rddata_raw"]
 
 		retval.append(answer)
 
