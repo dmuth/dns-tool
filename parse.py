@@ -405,6 +405,25 @@ def parseAnswerIp(answer, index, data):
 	return(retval, text)
 
 
+def parseAnswerCname(answer, index, data):
+	"""
+	parseAnswerCname(answer, data): Parse a Cname answer.
+	
+	answer - The answer body (no headers)
+	data - The entire response packet
+	
+	"""
+
+	retval = {}
+
+	index += 12
+	(text, retval["sanity"], retval["meta"]) = extractDomainName(index, data)
+
+	retval["text"] = text
+
+	return(retval, text)
+
+
 def parseAnswerMx(answer, index, data):
 	"""
 	parseAnswerMx(answer, data): Parse an MX answer.
@@ -487,6 +506,12 @@ def parseAnswerBody(answer, index, data):
 
 	if answer["headers"]["type"] == 1:
 		(retval, retval_text) = parseAnswerIp(answer["rddata_raw"][12:], index, data)
+
+	elif answer["headers"]["type"] == 5:
+		#
+		# SOA - RFC 1035 3.3.1
+		#
+		(retval, retval_text) = parseAnswerCname(answer["rddata_raw"][12:], index, data)
 
 	elif answer["headers"]["type"] == 6:
 		#
