@@ -101,7 +101,17 @@ parseArgs $@
 for TYPE in $RECORD_TYPES
 do
 
-	QUESTION="${TYPE}${MULTIPLE}.test.dmuth.org"
+	if test "$TYPE" != "cname"
+	then
+		QUESTION="${TYPE}${MULTIPLE}.test.dmuth.org"
+
+	else
+		#
+		# You apparently can't have multiple CNAME answers.
+		#
+		QUESTION="${TYPE}.test.dmuth.org"
+
+	fi
 
 	./dns-tool.py -q --query-type ${TYPE} --json ${QUESTION} #|jq .answers
 
