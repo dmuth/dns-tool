@@ -89,7 +89,7 @@ def printAnswers(answers, sanity):
 
 		headers = answer["headers"]
 		meta = {}
-		if "meta" in answer:
+		if "meta" in answer["rddata"]:
 			meta = answer["rddata"]["meta"]
 
 		print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
