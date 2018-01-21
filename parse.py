@@ -229,7 +229,7 @@ def parseQuestion(index, data):
 	# The offset can be calculated by adding 2 the value we extract, 1 byte for the leading
 	# length byte and 1 byte for the final 0x00.
 	#
-	(retval["question"], _) = extractDomainName(index, data)
+	(retval["question"], _, _) = extractDomainName(index, data)
 	index += len(retval["question"]) + 2
 
 	#
@@ -274,10 +274,19 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 	
 	Sanity checking is done if either of the first two bits of the pointer is set--if just
 	one bit or the other is set, that is logged.
+
+	Return values:
+		- A string
+		- An array of sanity checks that failed for this answer
+		- and metadata on this answer, such as pointer traversal
 	"""
 
 	retval = ""
 	sanity = []
+	meta = {}
+	meta["index_start"] = index
+	meta["pointers"] = []
+
 	beenhere = {}
 	#beenhere[82] = True # Debugging
 
@@ -314,10 +323,20 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 			index = pointer
 
 		#
-		# Chop off the first byte and get our answer
+		# Chop off the first byte and get our domain-name
 		#
-		answer = data[index + 1:]
-		string = answer[0:length]
+		domain_name = data[index + 1:]
+		string = domain_name[0:length]
+
+		#
+		# If we've got pointers going on, store the current one in our metadata.
+		#
+		if len(beenhere):
+			pointer_data = {
+				"pointer": pointer,
+				"target": string,
+				}
+			meta["pointers"].append(pointer_data)
 
 		if retval:
 			retval += "."
@@ -325,12 +344,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 
 		index += 1 + length
 
-		#
-		# Now chop off the string and repeat!
-		#
-		#answer = answer[length:]
-
-	return(retval, sanity)
+	return(retval, sanity, meta)
 
 
 def parseAnswerHeaders(data):
@@ -399,7 +413,7 @@ def parseAnswerMx(answer, index, data):
 	answer = answer[2:]
 
 	index += 12 + 2
-	(exchange, retval["sanity"]) = extractDomainName(index, data)
+	(exchange, retval["sanity"], retval["meta"]) = extractDomainName(index, data)
 
 	retval["preference"] = preference
 	retval["exchange"] = exchange
@@ -425,13 +439,13 @@ def parseAnswerSoa(answer, index, data):
 	#
 	index += 12
 
-	mname, retval["sanity"] = extractDomainName(index, data)
+	(mname, retval["sanity"], _) = extractDomainName(index, data)
 	index += len(mname) + 2
 
 	#
 	# Pull out the domain-name of the mailbox of the person resonsible.
 	#
-	rname, offset = extractDomainName(index, data)
+	(rname, offset, _) = extractDomainName(index, data)
 	index += len(rname) + 2
 
 	#
