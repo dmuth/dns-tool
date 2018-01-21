@@ -17,28 +17,34 @@ It is a work in progress, and will be updated.
 
 ## Requirements
 
-- Python 3
+- Python 2.x
 - A desire to learn more about how the Internet works
 
 
 ## Usage
 
 ```
-usage: dns-tool.py [-h] [--debug] [--json] [--json-pretty-print] [--text]
+$ ./dns-tool.py google.com --text
+usage: dns-tool.py [-h] [--query-type QUERY_TYPE] [--json]
+                   [--json-pretty-print] [--text] [--debug] [--quiet]
                    query [server]
 
 Make DNS queries and tear apart the result packets
 
 positional arguments:
-  query                String to query for (e.g. "google.com")
-  server               DNS server (default: 8.8.8.8)
+  query                 String to query for (e.g. "google.com")
+  server                DNS server (default: 8.8.8.8)
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --debug, -d          Enable debugging
-  --json               Output response as JSON
-  --json-pretty-print  Output response as JSON Pretty-printed
-  --text               Output response as formatted text
+  -h, --help            show this help message and exit
+  --query-type QUERY_TYPE
+                        Query type (Supported types: A, AAAA, CNAME, MX, SOA,
+                        NS)
+  --json                Output response as JSON
+  --json-pretty-print   Output response as JSON Pretty-printed
+  --text                Output response as formatted text
+  --debug, -d           Enable debugging
+  --quiet, -q           Quiet mode--only log errors
 ```
 
 
@@ -53,28 +59,31 @@ Question
    Question: google.com (len: 16)
    Type:     1 (A (Address))
    Class:    1 (IN)
+   Server:   8.8.8.8:53
 
 Header
 ======
-   Request ID:         aaaa
+   Request ID:         1aab
    Questions:          1
    Answers:            1
    Authority records:  0
    Additional records: 0
-   QR:     Response
-   AA:     Server isn't an authority
-   RD:     Recursion requested
-   RA:     Recursion available!
-   OPCODE: Standard query
-   RCODE:  No errors reported
+   QR:      Response
+   AA:      Server isn't an authority
+   TC:      Message not truncated
+   RD:      Recursion requested
+   RA:      Recursion available!
+   OPCODE:  0 - Standard query
+   RCODE:   0 - No errors reported
 
-Answer
-======
-   Answer:     172.217.5.238
-   QCLASS:     1 (IN)
-   QTYPE:      1 (A (Address))
-   TTL:        93
-   Raw RRDATA: acd905ee (len 4)
+Answers
+=======
+   Answer #0:   172.217.7.238
+   CLASS:       1 (IN)
+   TYPE:        1 (A (Address))
+   TTL:         154
+   Raw RRDATA:  c0 0c 00 01 00 01 00 00 00 9a 00 04 ac d9 07 ee (len 4)
+   Full RRDATA: {'ip': '172.217.7.238'}
 ```
 
 
@@ -100,7 +109,6 @@ Sanity Checks Failed
    OPCODE > 2 reserved for future use! (Qtype = 14)
    Invalid RCODE (77)
    QCLASS in answer is < 1 (0)
-   QTYPE in answer is > 16 (123)
 ```
 
 
@@ -112,14 +120,27 @@ Sanity Checks Failed
 - `sanity.py`: Functions to perform sanity checks on answer
 
 
+## Testing
+
+There is a wrapper script called `test.sh` which can be used to test against a record
+in the zone `test.dmuth.org`.  I have a series of test DNS records set up there that are
+guaranteed to return speific results.
+
+To test everything that the tool currently knows about:
+`./test.sh a mx soa cname ns --multiple  |jq .answers[].rddata_text`
+
+
 ## TODO List
 
-- How to handle multiple answers? (NS, etc.)
-- IPv6: Do queries for "AAAA" if "A" is specified.
+- Write a `test-wrapper.sh` script that checks outputs
+- Refactor parse.py into parse_body.py
+- Store raw packets to disk with `--raw` and read them with `--stdin`
+- BUG: Doing a query for `foobar` returns a payload with a different offset.
+- Humanize TTL in seconds in text
+- Put this entire app into a Pip package
+- Make this run in Python 3 like a civilized application.
 - Handle RDNS queries/responses
-- How to turn this into an application that can be installed with Pip?
 - Unit testing for parsing functions
-- Functionality testing for queries against a DNS server
 - Docker container to run a custom DNS server
 - Docker containers to run different DNS servers and verify behavior across different DNS server software
 
