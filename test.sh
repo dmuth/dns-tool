@@ -101,19 +101,29 @@ parseArgs $@
 for TYPE in $RECORD_TYPES
 do
 
-	if test "$TYPE" != "cname"
+	SERVER=""
+
+	if test "$TYPE" == "ns"
 	then
+		SERVER="ns-49.awsdns-06.com"
 		QUESTION="${TYPE}${MULTIPLE}.test.dmuth.org"
 
-	else
+	elif test "$TYPE" == "cname" -o "$TYPE" == "soa"
+	then
 		#
 		# You apparently can't have multiple CNAME answers.
+		# And
 		#
 		QUESTION="${TYPE}.test.dmuth.org"
 
+	else
+		QUESTION="${TYPE}${MULTIPLE}.test.dmuth.org"
+
 	fi
 
-	./dns-tool.py -q --query-type ${TYPE} --json ${QUESTION} #|jq .answers
+	CMD="./dns-tool.py -q --query-type ${TYPE} --json ${QUESTION} ${SERVER}" #|jq .answers
+	echo "Running '$CMD'..." >&2
+	$CMD
 
 done
 
