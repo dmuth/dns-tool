@@ -621,6 +621,11 @@ def parseAnswers(data, question_length = 0):
 	index = 12 + question_length
 	logger.debug("question_length=%d total_length=%d" % (question_length, len(data)))
 
+	if index >= len(data):
+		logger.debug("parseAnswer(): index %d >= data length(%d), so no answers were received. Aborting." % (
+			index, len(data)))
+		return(retval)
+
 	while True:
 
 		answer = {}
