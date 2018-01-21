@@ -40,7 +40,8 @@ def printResponseText(response):
 	print("   Question: %s (len: %s)" % (question["question"], question["question_length"]))
 	print("   Type:     %d (%s)" % (question["qtype"], question["qtype_text"]))
 	print("   Class:    %d (%s)" % (question["qclass"], question["qclass_text"]))
-
+	print("   Server:   %s:%s" % (response["server"][0], response["server"][1]))
+	
 	print("")
 
 	printHeader(response["header"], sanity["header"])

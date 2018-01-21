@@ -74,6 +74,7 @@ def sendUdpMessage(message, address, port):
 
 		request_id = parse.getRequestId(message)
 
+		retval["server"] = server_address
 		retval["header"] = parse.parseHeader(data[0:12])
 		retval["question"] = parse.parseQuestion(12, data)
 
