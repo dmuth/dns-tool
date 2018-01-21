@@ -322,6 +322,12 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 			length = int(ord(data[pointer]))
 			index = pointer
 
+		else:
+			#
+			# Just a length, so set our pointer to zero.
+			#
+			pointer = 0
+
 		#
 		# Chop off the first byte and get our domain-name
 		#
@@ -329,9 +335,9 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 		string = domain_name[0:length]
 
 		#
-		# If we've got pointers going on, store the current one in our metadata.
+		# If we have a pointer in this iteration, store it and what it points to in our metadata.
 		#
-		if len(beenhere):
+		if pointer:
 			pointer_data = {
 				"pointer": pointer,
 				"target": string,
