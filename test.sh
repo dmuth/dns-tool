@@ -3,6 +3,8 @@
 # A wrapper script to test our DNS tool
 #
 
+# Errors are fatal
+set -e
 
 
 MULTIPLE=""

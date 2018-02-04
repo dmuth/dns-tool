@@ -3,6 +3,9 @@
 # This script runs tests again our DNS tool, but does so on an automated bassis.
 #
 
+# Errors are fatal
+set -e
+
 
 #
 # Our query types to run
