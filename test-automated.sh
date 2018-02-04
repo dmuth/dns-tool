@@ -4,8 +4,6 @@
 #
 
 
-
-
 #
 # Our query types to run
 #
@@ -20,9 +18,13 @@ declare -a ANSWERS=(
 	"10 test.dmuth.org"
 	"ns-765.awsdns-31.net awsdns-hostmaster.amazon.com 1 7200 900 1209600 86400"
 	"a.test.dmuth.org"
-	#"BADns.test.dmuth.org"
+	#"BADns.test.dmuth.org" # Debugging
 	"ns.test.dmuth.org"
 	)
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m'
 
 
 #
@@ -36,10 +38,10 @@ function test_result() {
 
 	if test "$RESULT" == "$EXPECTED"
 	then
-		echo "OK: result '${RESULT}' == '${EXPECTED}' for query '${QUERY}'"
+		echo -e "   ${GREEN}[OK]${NC}    : result '${RESULT}' == '${EXPECTED}' for query '${QUERY}'"
 
 	else
-		echo "ERROR: result '${RESULT}' != '${EXPECTED}' for query '${QUERY}'"
+		echo -e "   ${RED}[ERROR]${NC} : result '${RESULT}' != '${EXPECTED}' for query '${QUERY}'"
 		exit 1
 
 	fi

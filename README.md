@@ -132,7 +132,6 @@ To test everything that the tool currently knows about:
 
 ## TODO List
 
-- Write a `test-wrapper.sh` script that checks outputs
 - Refactor parse.py into parse_body.py
 - Store raw packets to disk with `--raw` and read them with `--stdin`
 - BUG: Doing a query for `foobar` returns a payload with a different offset.
