@@ -103,13 +103,6 @@ def sendUdpMessage(message, address, port):
 	return(retval)
 
 
-def formatHex(hex):
-	"""formatHex returns a pretty version of a hex string"""
-	octets = [hex[i:i+2] for i in range(0, len(hex), 2)]
-	pairs = [" ".join(octets[i:i+2]) for i in range(0, len(octets), 2)]
-	return "\n".join(pairs)
-
-
 header = create.createHeader()
 logger.debug(parse.parseHeader(header))
 
