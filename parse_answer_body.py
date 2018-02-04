@@ -3,6 +3,12 @@
 #
 
 
+import struct
+
+import output
+import parse_question
+
+
 def parseAnswerBody(answer, index, data):
 	"""
 	parseAnswerBody(answer, index, data): Extract the answer body.
@@ -88,7 +94,7 @@ def parseAnswerAAAA(answer, index, data):
 
 	retval = {}
 
-	text = formatHex(answer, delimiter = ":", group_size = 4)
+	text = output.formatHex(answer, delimiter = ":", group_size = 4)
 
 	retval["ip"] = text
 	retval["sanity"] = []
@@ -108,7 +114,7 @@ def parseAnswerNs(answer, index, data):
 	retval = {}
 
 	index += 12
-	(text, retval["sanity"], retval["meta"]) = extractDomainName(index, data)
+	(text, retval["sanity"], retval["meta"]) = parse_question.extractDomainName(index, data)
 
 	return(retval, text)
 
@@ -124,7 +130,7 @@ def parseAnswerCname(answer, index, data):
 	retval = {}
 
 	index += 12
-	(text, retval["sanity"], retval["meta"]) = extractDomainName(index, data)
+	(text, retval["sanity"], retval["meta"]) = parse_question.extractDomainName(index, data)
 
 	retval["text"] = text
 
@@ -170,7 +176,7 @@ def parseAnswerMx(answer, index, data):
 	answer = answer[2:]
 
 	index += 12 + 2
-	(exchange, retval["sanity"], retval["meta"]) = extractDomainName(index, data)
+	(exchange, retval["sanity"], retval["meta"]) = parse_question.extractDomainName(index, data)
 
 	retval["preference"] = preference
 	retval["exchange"] = exchange
@@ -196,13 +202,13 @@ def parseAnswerSoa(answer, index, data):
 	#
 	index += 12
 
-	(mname, sanity_mname, meta_mname) = extractDomainName(index, data)
+	(mname, sanity_mname, meta_mname) = parse_question.extractDomainName(index, data)
 	index += len(mname) + 2
 
 	#
 	# Pull out the domain-name of the mailbox of the person resonsible.
 	#
-	(rname, sanity_rname, meta_rname) = extractDomainName(index, data)
+	(rname, sanity_rname, meta_rname) = parse_question.extractDomainName(index, data)
 
 	#
 	# Okay, so this requires a little explanation.

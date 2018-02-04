@@ -16,6 +16,8 @@ import socket
 
 import create
 import parse
+import parse_answer
+import parse_question
 import output
 import sanity
 
@@ -76,20 +78,20 @@ def sendUdpMessage(message, address, port):
 
 		retval["server"] = server_address
 		retval["header"] = parse.parseHeader(data[0:12])
-		retval["question"] = parse.parseQuestion(12, data)
+		retval["question"] = parse_question.parseQuestion(12, data)
 
 		#
 		# Send us past the headers and question and parse the answer(s).
 		#
 		answer_index = 12 + retval["question"]["question_length"]
-		retval["answers"] = parse.parseAnswers(data, question_length = retval["question"]["question_length"])
+		retval["answers"] = parse_answer.parseAnswers(data, question_length = retval["question"]["question_length"])
 
 		#
 		# Do a sanity check on the results.
 		#
 		retval["sanity"] = sanity.go(retval["header"], retval["answers"], request_id)
 
-		retval["raw"] = parse.formatHex(data)
+		retval["raw"] = output.formatHex(data)
 
 	except socket.error as e:
 		logger.error("Error connecting to %s:%s: %s" % (address, port, e))
@@ -112,7 +114,7 @@ header = create.createHeader()
 logger.debug(parse.parseHeader(header))
 
 question = create.createQuestion(args.query, args.query_type)
-logger.debug(parse.parseQuestion(0, question))
+logger.debug(parse_question.parseQuestion(0, question))
 
 message = header + question
 

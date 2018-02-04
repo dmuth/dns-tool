@@ -3,6 +3,7 @@
 #
 
 
+import binascii
 import json
 import logging
 
@@ -112,5 +113,30 @@ def printAnswers(answers, sanity):
 
 		index += 1
 		print("")
+
+
+def formatHex(data, delimiter = " ", group_size = 2):
+	"""
+	formatHex(data, delimiter = " ", group_size = 2): Returns a nice hex version of a string
+
+	data - The string to turn into hex values
+	delimiter - The delimter between hex values
+	group_size - How many characters do we want in a group?
+	"""
+
+	# Python 2
+	hex = binascii.hexlify(data)
+	retval = delimiter.join(hex[i:i + group_size] for i in range(0, len(hex), group_size))
+
+	# Python 3
+	#if not isinstance(data, bytes):
+	#	hex = bytearray(data, "iso8859-1").hex()
+	#else:
+	#	hex = data.hex()
+	#
+	#retval = delimiter.join(hex[i:i + group_size] for i in range(0, len(hex), group_size))
+
+	return(retval)
+
 
 
