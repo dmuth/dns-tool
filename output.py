@@ -96,7 +96,7 @@ def printAnswers(answers, sanity):
 		print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
 		print("   CLASS:       %s (%s)" % (headers["class"], headers["class_text"]))
 		print("   TYPE:        %s (%s)" % (headers["type"], headers["type_text"]))
-		print("   TTL:         %s" % (headers["ttl"]))
+		print("   TTL:         %s (%s)" % (headers["ttl"], headers["ttl_text"]))
 
 		if "pointers" in meta and len(meta["pointers"]):
 			print("   Pointers:")

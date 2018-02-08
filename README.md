@@ -134,7 +134,6 @@ To test everything that the tool currently knows about:
 
 - Store raw packets to disk with `--raw` and read them with `--stdin`
 - BUG: Doing a query for `foobar` returns a payload with a different offset.
-- Humanize TTL in seconds in text
 - Put this entire app into a Pip package
 - Make this run in Python 3 like a civilized application.
 - Handle RDNS queries/responses

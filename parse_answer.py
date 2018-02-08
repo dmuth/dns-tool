@@ -1,7 +1,10 @@
 
 
+import datetime
 import logging
 import struct
+
+import humanize
 
 import output
 import parse_answer_body
@@ -38,6 +41,7 @@ def parseAnswerHeaders(data):
 	retval["class_text"] = parse_question.parseQclass(retval["class"])
 
 	retval["ttl"] = (256 * ord(data[8])) + ord(data[9])
+	retval["ttl_text"] = humanize.naturaltime(datetime.datetime.now() + datetime.timedelta(seconds = retval["ttl"]))
 	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
 
 	return(retval)
