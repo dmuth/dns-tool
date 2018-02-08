@@ -1,4 +1,4 @@
-<img src="./img/networking.svg" width="250" align="right" />
+
 
 # DNS Tool
 
@@ -148,6 +148,20 @@ To test everything that the tool currently knows about:
 - https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html
 - http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 - https://tools.ietf.org/html/rfc1035
+
+
+## Development
+
+At the moment, this is written in Python 2.7, so you'll need to install Virtualenv to point 
+to your copy of Python 2.7:
+
+```
+virtualenv --python=$(which python2.7) virtualenv
+. ./virtualenv/bin/activate
+pip install -r ./requirements.txt
+```
+
+
 
 
 ## Credits

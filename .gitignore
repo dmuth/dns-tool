@@ -9,4 +9,6 @@
 *.swp
 *~
 
+# Virtualenv
+virtualenv/
 
