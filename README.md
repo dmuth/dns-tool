@@ -179,12 +179,12 @@ set to one, which is decimal 192 or hex 0xC0.  So in this case, `0x20` is 32 dec
 for the `0x06 google` in the first answer above.
 
 
-**So the maximum length of a label in a domain name is only 63 characters?**
+#### So the maximum length of a label in a domain name is only 63 characters?
 
 Yep.  Only the last 6 bits are used.
 
 
-**Let's go deeper**
+#### Let's go deeper
 
 That example I gave above wasn't quite right.  You see, a pointer points to the offset
 from the start of the *message*.  So there is no reason why a pointer as to point to the *answer*
@@ -220,7 +220,7 @@ Answer dk     : len=2 + "dk" + pointer=0xC031
 ```
 
 
-**This is madness**
+#### This is madness
 
 Again, this seems like a bit of over-engineering, but in the context of trying to fit as much data as humanly
 possible into a 512 byte message, this is very efficient.
