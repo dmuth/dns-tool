@@ -118,7 +118,10 @@ Sanity Checks Failed
 
 - `create.py`: Functions for creating the DNS request
 - `output.py`: Functions for printing out the answer to a DNS query
-- `parse.py`: Functions to parse the answer
+- `parse.py`: Functions to parse the the header
+- `parse_answer.py`: Functions to parse the answer headers
+- `parse_answer_body.py`: Parse the Resource Records (RR)
+- `parse_question.py`: Parse the question
 - `sanity.py`: Functions to perform sanity checks on answer
 
 
