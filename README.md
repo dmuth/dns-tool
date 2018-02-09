@@ -205,7 +205,7 @@ answers of "europe.ns1.google.com" and "dk.europe.ns1.google.com", the answer mi
 0x03 ns1 0xCO0C
 0x03 ns2 0xC00C
 0x06 europe 0xC018
-0x02 dk
+0x02 dk 0xC031
 ```
 
 And just to show my work on how those offsets were calculated:
