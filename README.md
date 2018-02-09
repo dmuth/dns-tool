@@ -114,6 +114,123 @@ Sanity Checks Failed
 ```
 
 
+## DNS Message Format
+
+
+### High-level Overview
+
+This comes right from <a href="https://tools.ietf.org/html/rfc1035">RFC 1035</a>, section 4.1:
+
+```
+    +---------------------+
+    |        Header       |
+    +---------------------+
+    |       Question      | the question for the name server
+    +---------------------+
+    |        Answer       | Resource Records (RRs) answering the question
+    +---------------------+
+    |      Authority      | RRs pointing toward an authority
+    +---------------------+
+    |      Additional     | RRs holding additional information
+    +---------------------+
+```
+
+When the message is first sent out, it looks like this:
+```
+    +---------------------+
+    |        Header       |
+    +---------------------+
+    |       Question      |
+    +---------------------+
+```
+
+The server then tweaks bits in the header accordingly and appends zero or more answers.
+There are a couple of neat thigs about this approach:
+
+- 512 bytes is well under the smallest <a href="https://en.wikipedia.org/wiki/Page_(computer_memory)">memory page size</a> of modern CPUs
+- The DNS server can malloc() 512 bytes for every request that comes in, which means that...
+- The message can be modified in place--the header flags can be tweaked and answers can be appended onto the end of the question.
+
+This might seem like a case of premature optimization, but a busy DNS resolver might handle thousands of requests
+per second, at which point all of the extra clock cycles that are saved really add up.
+
+That said, the 512 byte limit is a concern, which leads us to...
+
+
+### Message Compression and Pointers
+
+Normally, the domain name(s) in an answer are in the format of a byte indicating length, followed
+by that many bytes, followed by either another length byte, a zero (indicating the end of that domain name),
+or a pointer.  To visualize that, here's how `www.google.com` would look:
+
+`0x03 www 0x06 google 0x03 com 0x00`
+
+Everybody got that?  Good.  Now let's talk about how pointers might fit in.  If you made a
+query for say, nameservers on `google.com` that returned `ns1.google.com` and `ns2.google.com`, 
+you'd get an answer like this:
+
+```
+0x03 ns1 0x06   google 0x03 com 0x00
+0x03 ns2 0xC020
+```
+
+Breaking that down, a pointer is two bytes, where the first two bits of the first byte are both
+set to one, which is decimal 192 or hex 0xC0.  So in this case, `0x20` is 32 decimal, which is the offset
+for the `0x06 google` in the first answer above.
+
+
+**So the maximum length of a label in a domain name is only 63 characters?**
+
+Yep.  Only the last 6 bits are used.
+
+
+**Let's go deeper**
+
+That example I gave above wasn't quite right.  You see, a pointer points to the offset
+from the start of the *message*.  So there is no reason why a pointer as to point to the *answer*
+section but could instead point to the *question*!
+
+Here is a truer representation of what the above answer might look like
+
+```
+0x03 ns1 0xC00C
+0x03 ns2 0xC00C
+```
+
+In both cases, the answer is a length byte, "ns1" or "ns2", and a pointer to "google.com" back in the question
+part of that message.  Yes, you can even have *pointers to pointers*.  So if you had, for example, two additional
+answers of "europe.ns1.google.com" and "dk.europe.ns1.google.com", the answer might look like this:
+
+```
+0x03 ns1 0xCO0C
+0x03 ns2 0xC00C
+0x06 europe 0xC018
+0x02 dk
+```
+
+And just to show my work on how those offsets were calculated:
+
+```
+Header        : 12 bytes
+Question      : len=6 + "google" + len=3 + "com" + 0x00 (12 bytes)  + 2 bytes QTYPE + 2 bytes QCLASS = 16 bytes
+Answer ns1    : len=3 + "ns1" + pointer=0xC00C + 2 bytes TYPE + 2 bytes CLASS + 4 bytes TTL + 2 bytes RDLENGTH = 16 bytes
+Answer ns2    : len=3 + "ns2" + pointer=0xC00C = 5 bytes
+Answer europe : len=6 + "europe" + pointer=0xC01C = 9 bytes
+Answer dk     : len=2 + "dk" + pointer=0xC031
+```
+
+
+**This is madness**
+
+Again, this seems like a bit of over-engineering, but in the context of trying to fit as much data as humanly
+possible into a 512 byte message, this is very efficient.
+
+Keep in mind that the RFC for DNS was written back in *1987* -- 31 years ago as of this writing!  The
+creators of that document were smart enough to realize that DNS would eventually become a part of the 
+Internet's infrastructure, but they weren't sure how complex the answers might be, and needed to future-proof
+their procotol as best they could.
+
+
 ## Module Architecture
 
 - `create.py`: Functions for creating the DNS request
