@@ -28,8 +28,7 @@ def parseAnswerHeaders(data):
 	#	I will write code to handle this later.
 	# 2-3: Type
 	# 4-5: Class
-	# 6-7: Unused(?)
-	# 8-9: TTL
+	# 6-9: TTL
 	# 10-11: RDLENGTH
 	# 12+: RDDATA (The answer!)
 	#
@@ -40,7 +39,8 @@ def parseAnswerHeaders(data):
 	retval["type_text"] = parse_question.parseQtype(retval["type"])
 	retval["class_text"] = parse_question.parseQclass(retval["class"])
 
-	retval["ttl"] = (256 * ord(data[8])) + ord(data[9])
+	#data = data[0:6] + "0" + data[7:] # Debugging - Make the TTL 25+ years
+	retval["ttl"] = ( ( 16777216 * ord(data[6]) ) + ( 65536 * ord(data[7]) ) + ( 256 * ord(data[8])) ) + ord(data[9])
 	retval["ttl_text"] = humanize.naturaltime(datetime.datetime.now() + datetime.timedelta(seconds = retval["ttl"]))
 	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
 
