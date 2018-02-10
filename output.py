@@ -166,6 +166,10 @@ def printAnswers(args, answers, sanity):
 			print("")
 			printAnswerText(answer, index, headers, meta, sanity_answer)
 
+		if args.graph:
+			print("")
+			printAnswerGraph(answer, headers, meta)
+
 		index += 1
 
 
@@ -190,6 +194,73 @@ def printAnswerText(answer, index,  headers, meta, sanity_answer):
 	if len(sanity_answer):
 		for warning in sanity_answer:
 			print("   WARNING:     %s" % warning)
+
+
+def printAnswerGraph(answer, headers, meta):
+	"""
+	printAnswerGraph(answer, headers, meta): Print up a graph of our answer
+	"""
+
+	rddata = answer["rddata"]
+
+	print("                                1  1  1  1  1  1")
+	print("     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5")
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+    
+#+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--|
+#/                     RDATA                     /
+#+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+	
+	print("   |  NAME     : %-30s    |" % (rddata["question_text"]))
+
+	for row in rddata["question_meta"]["data_decoded"]:
+
+		if "length" in row:
+
+			key = row["length"]
+			value = "(nil)"
+			if row["length"]:
+				value = row["string"]
+			print("   |        len: %3d  value: %-20s  |" % (key, value))
+
+		elif "pointer" in row:
+			key = row["pointer"]
+			value = row["target"]
+			print("   |    pointer: %3d target: %-20s  |" % (key, value))
+
+		else:
+
+			print("   |    UNKNOWN: %25s |" % (row))
+
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+	print("   |  TYPE:  %3d - %-28s    |" % (headers["type"], headers["type_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+	print("   | CLASS: %3d - %-29s    |" % (headers["class"], headers["class_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+	print("   |   TTL: %3d - %-29s    |" % (headers["ttl"], headers["ttl_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+	print("   |   RDLENGTH: %3d                               |" % (headers["rdlength"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+	print("   |     RDDATA: %-30s    |" % (answer["rddata_text"]))
+	for row in rddata["meta"]["data_decoded"]:
+
+		if "length" in row:
+
+			key = row["length"]
+			value = "(nil)"
+			if row["length"]:
+				value = row["string"]
+			print("   |        len: %3d  value: %-20s  |" % (key, value))
+
+		elif "pointer" in row:
+			key = row["pointer"]
+			value = row["target"]
+			print("   |    pointer: %3d target: %-20s  |" % (key, value))
+
+		else:
+
+			print("   |    UNKNOWN: %25s |" % (row))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
 
 
 def formatHex(data, delimiter = " ", group_size = 2):
