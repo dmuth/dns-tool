@@ -54,6 +54,9 @@ def parseAnswers(data, question_length = 0):
 
 	retval = []
 
+	#
+	# Skip the headers and question
+	#
 	index = 12 + question_length
 	logger.debug("question_length=%d total_length=%d" % (question_length, len(data)))
 
@@ -62,6 +65,9 @@ def parseAnswers(data, question_length = 0):
 			index, len(data)))
 		return(retval)
 
+	#
+	# Now loop through our answers.
+	#
 	while True:
 
 		answer = {}
