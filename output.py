@@ -33,28 +33,55 @@ def printResponseText(args, response):
 	printResponseText(response): Print up our response as text.
 	"""
 
-	sanity = response["sanity"]
+	if args.text or args.graph:
 
-	question = response["question"]
+		sanity = response["sanity"]
+
+		question = response["question"]
+
+		printQuestion(args, question, response)
+	
+		print("")
+
+		printHeader(args, response["header"], sanity["header"])
+	
+		print("")
+
+		printAnswers(response["answers"], sanity["answers"])
+
+		print("")
+
+
+def printQuestion(args, question, response):
 
 	print("Question")
 	print("========")
 
 	if args.text:
+		print("")
 		print("   Question: %s (len: %s)" % (question["question"], question["question_length"]))
 		print("   Type:     %d (%s)" % (question["qtype"], question["qtype_text"]))
 		print("   Class:    %d (%s)" % (question["qclass"], question["qclass_text"]))
 		print("   Server:   %s:%s" % (response["server"][0], response["server"][1]))
-	
-	print("")
 
-	printHeader(args, response["header"], sanity["header"])
+	if args.graph:
+		print("")
+		print("                                1  1  1  1  1  1")
+		print("     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5")
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |  QNAME:                                       |")
+		for row in question["meta"]["data_decoded"]:
+			length = row["length"]
+			string = "(nil)"
+			if length:
+				string = row["string"]
+			print("   |    len: %2d value: %-27s |" % (row["length"], string))
 
-	print("")
-
-	printAnswers(response["answers"], sanity["answers"])
-
-	print("")
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |  QTYPE:  %3d - %-27s    |" % (question["qtype"], question["qtype_text"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   | QCLASS: %3d - %-28s    |" % (question["qclass"], question["qclass_text"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
 
 
 def printHeader(args, header, sanity):
@@ -63,9 +90,9 @@ def printHeader(args, header, sanity):
 	"""
 
 	text = header["header_text"]
-	if args.text or args.graph:
-		print("Header")
-		print("======")
+
+	print("Header")
+	print("======")
 
 	if args.text:
 		print("")
