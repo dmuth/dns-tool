@@ -82,7 +82,7 @@ def parseQuestion(index, data):
 	# The offset can be calculated by adding 2 the value we extract, 1 byte for the leading
 	# length byte and 1 byte for the final 0x00.
 	#
-	(retval["question"], _, _) = extractDomainName(index, data)
+	(retval["question"], _, retval["meta"]) = extractDomainName(index, data)
 	index += len(retval["question"]) + 2
 
 	#
@@ -125,6 +125,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 	sanity = []
 	meta = {}
 	meta["pointers"] = []
+	meta["data_decoded"] = []
 
 	beenhere = {}
 	#beenhere[21] = True # Debugging
@@ -182,6 +183,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 		domain_name = data[index + 1:]
 		string = domain_name[0:length]
 
+
 		#
 		# If we have a pointer in this iteration, store it and what it points to in our metadata.
 		#
@@ -192,11 +194,31 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 				}
 			meta["pointers"].append(pointer_data)
 
+			meta["data_decoded"].append({
+				"pointer": pointer,
+				"target": string,
+				})
+
+		else:
+			#
+			# If this is not a pointer and we haven't been to any pointers here,
+			# copy the payload to our metadata.
+			#
+			if not len(meta["pointers"]):
+				meta["data_decoded"].append({
+					"length": length,
+					"string": string,
+					})
+
 		if retval:
 			retval += "."
 		retval += string
 
 		index += 1 + length
+
+	meta["data_decoded"].append({
+		"length": 0,
+		})
 
 	return(retval, sanity, meta)
 
