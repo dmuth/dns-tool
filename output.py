@@ -24,11 +24,11 @@ def printResponse(args, response):
 	if args.json_pretty_print:
 		print(json.dumps(response, indent = 2))
 
-	if args.text:
-		printResponseText(response)
+	if args.text or args.graph:
+		printResponseText(args, response)
 
 
-def printResponseText(response):
+def printResponseText(args, response):
 	"""
 	printResponseText(response): Print up our response as text.
 	"""
@@ -36,16 +36,19 @@ def printResponseText(response):
 	sanity = response["sanity"]
 
 	question = response["question"]
+
 	print("Question")
 	print("========")
-	print("   Question: %s (len: %s)" % (question["question"], question["question_length"]))
-	print("   Type:     %d (%s)" % (question["qtype"], question["qtype_text"]))
-	print("   Class:    %d (%s)" % (question["qclass"], question["qclass_text"]))
-	print("   Server:   %s:%s" % (response["server"][0], response["server"][1]))
+
+	if args.text:
+		print("   Question: %s (len: %s)" % (question["question"], question["question_length"]))
+		print("   Type:     %d (%s)" % (question["qtype"], question["qtype_text"]))
+		print("   Class:    %d (%s)" % (question["qclass"], question["qclass_text"]))
+		print("   Server:   %s:%s" % (response["server"][0], response["server"][1]))
 	
 	print("")
 
-	printHeader(response["header"], sanity["header"])
+	printHeader(args, response["header"], sanity["header"])
 
 	print("")
 
@@ -54,26 +57,61 @@ def printResponseText(response):
 	print("")
 
 
-def printHeader(header, sanity):
+def printHeader(args, header, sanity):
 	"""
 	printHeader(header): Print up our headers
 	"""
 
 	text = header["header_text"]
-	print("Header")
-	print("======")
-	print("   Request ID:         %s" % header["request_id"])
-	print("   Questions:          %d" % int(header["num_questions"]))
-	print("   Answers:            %d" % int(header["num_answers"]))
-	print("   Authority records:  %d" % (int(header["num_authority_records"])))
-	print("   Additional records: %d" % (int(header["num_additional_records"])))
-	print("   QR:      %s" % text["qr"])
-	print("   AA:      %s" % text["aa"])
-	print("   TC:      %s" % text["tc"])
-	print("   RD:      %s" % text["rd"])
-	print("   RA:      %s" % text["ra"])
-	print("   OPCODE:  %d - %s" % (header["header"]["opcode"], text["opcode_text"]))
-	print("   RCODE:   %d - %s" % (header["header"]["rcode"], text["rcode_text"]))
+	if args.text or args.graph:
+		print("Header")
+		print("======")
+
+	if args.text:
+		print("")
+		print("   Request ID:         %s" % header["request_id"])
+		print("   Questions:          %d" % int(header["num_questions"]))
+		print("   Answers:            %d" % int(header["num_answers"]))
+		print("   Authority records:  %d" % (int(header["num_authority_records"])))
+		print("   Additional records: %d" % (int(header["num_additional_records"])))
+		print("   QR:      %s" % text["qr"])
+		print("   AA:      %s" % text["aa"])
+		print("   TC:      %s" % text["tc"])
+		print("   RD:      %s" % text["rd"])
+		print("   RA:      %s" % text["ra"])
+		print("   OPCODE:  %d - %s" % (header["header"]["opcode"], text["opcode_text"]))
+		print("   RCODE:   %d - %s" % (header["header"]["rcode"], text["rcode_text"]))
+
+	#
+	# Print a graph right out of RFC 1035, section 4.1.1
+	#
+	if args.graph:
+		print("")
+		print("                                1  1  1  1  1  1")
+		print("     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5")
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |             Request ID: %s                  |" % header["request_id"])
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |%s| Opcode: %d |%s|%s|%s|%s|  Z: %d  | RCODE: %d  |" % (
+			"QR" if header["header"]["qr"] else "  ",
+ 			header["header"]["opcode"],
+			"AA" if header["header"]["aa"] else "  ",
+			"TC" if header["header"]["tc"] else "  ",
+			"RD" if header["header"]["rd"] else "  ",
+			"RA" if header["header"]["ra"] else "  ",
+			header["header"]["z"],
+			header["header"]["rcode"],
+			))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |          Question Count: %d                    |" % int(header["num_questions"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |          Answer Count: %d                      |" % int(header["num_answers"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |          Authority/Nameserver Count: %d        |" % int(header["num_authority_records"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   |          Additional Records Count: %d          |" % int(header["num_additional_records"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+
 
 	if len(sanity):
 		for warning in sanity:
