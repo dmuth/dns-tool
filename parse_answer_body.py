@@ -64,6 +64,11 @@ def parseAnswerBody(answer, index, data):
 		retval["sanity"] = []
 		logger.warn("Unknown answer QTYPE: %s" % answer["headers"]["type"])
 
+	#
+	# Extract the domain name of the question that this answer points to.
+	#
+	(retval["question_text"], _, retval["question_meta"]) = parse_question.extractDomainName(index, data)
+
 
 	return(retval, retval_text)
 
