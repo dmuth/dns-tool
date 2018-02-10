@@ -47,12 +47,15 @@ def printResponseText(args, response):
 	
 		print("")
 
-		printAnswers(response["answers"], sanity["answers"])
+		printAnswers(args, response["answers"], sanity["answers"])
 
 		print("")
 
 
 def printQuestion(args, question, response):
+	"""
+	printQuestion(args, question, response): Print our text and/or graph of our quesiton.
+	"""
 
 	print("Question")
 	print("========")
@@ -145,7 +148,7 @@ def printHeader(args, header, sanity):
 			print("   WARNING: %s" % warning)
 
 
-def printAnswers(answers, sanity):
+def printAnswers(args, answers, sanity):
 
 	print("Answers")
 	print("=======")
@@ -157,27 +160,36 @@ def printAnswers(answers, sanity):
 		meta = {}
 		if "meta" in answer["rddata"]:
 			meta = answer["rddata"]["meta"]
-
-		print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
-		print("   CLASS:       %s (%s)" % (headers["class"], headers["class_text"]))
-		print("   TYPE:        %s (%s)" % (headers["type"], headers["type_text"]))
-		print("   TTL:         %s (%s)" % (headers["ttl"], headers["ttl_text"]))
-
-		if "pointers" in meta and len(meta["pointers"]):
-			print("   Pointers:")
-			for pointer in meta["pointers"]:
-				print("      Pointer to offset %d, points to '%s'" % (pointer["pointer"], pointer["target"]))
-
-		print("   Raw RRDATA:  %s (len %s)" % (answer["rddata_hex"], headers["rdlength"]))
-		print("   Full RRDATA: %s" % (answer["rddata"]))
-
 		sanity_answer = sanity[index]
-		if len(sanity_answer):
-			for warning in sanity_answer:
-				print("   WARNING:     %s" % warning)
+
+		if args.text:
+			print("")
+			printAnswerText(answer, index, headers, meta, sanity_answer)
 
 		index += 1
-		print("")
+
+
+def printAnswerText(answer, index,  headers, meta, sanity_answer):
+	"""
+	printAnswerText(answer, index, headers, meta, sanity_answer): Print up text of our answer
+	"""
+
+	print("   Answer #%d:   %s" % (index, answer["rddata_text"]))
+	print("   CLASS:       %s (%s)" % (headers["class"], headers["class_text"]))
+	print("   TYPE:        %s (%s)" % (headers["type"], headers["type_text"]))
+	print("   TTL:         %s (%s)" % (headers["ttl"], headers["ttl_text"]))
+
+	if "pointers" in meta and len(meta["pointers"]):
+		print("   Pointers:")
+		for pointer in meta["pointers"]:
+			print("      Pointer to offset %d, points to '%s'" % (pointer["pointer"], pointer["target"]))
+
+	print("   Raw RRDATA:  %s (len %s)" % (answer["rddata_hex"], headers["rdlength"]))
+	print("   Full RRDATA: %s" % (answer["rddata"]))
+
+	if len(sanity_answer):
+		for warning in sanity_answer:
+			print("   WARNING:     %s" % warning)
 
 
 def formatHex(data, delimiter = " ", group_size = 2):
