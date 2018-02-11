@@ -242,24 +242,25 @@ def printAnswerGraph(answer, headers, meta):
 	print("   |   RDLENGTH: %3d                               |" % (headers["rdlength"]))
 	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
 	print("   |     RDDATA: %-30s    |" % (answer["rddata_text"]))
-	for row in rddata["meta"]["data_decoded"]:
+	if "meta" in rddata:
+		for row in rddata["meta"]["data_decoded"]:
 
-		if "length" in row:
+			if "length" in row:
 
-			key = row["length"]
-			value = "(nil)"
-			if row["length"]:
-				value = row["string"]
-			print("   |        len: %3d  value: %-20s  |" % (key, value))
+				key = row["length"]
+				value = "(nil)"
+				if row["length"]:
+					value = row["string"]
+				print("   |        len: %3d  value: %-20s  |" % (key, value))
 
-		elif "pointer" in row:
-			key = row["pointer"]
-			value = row["target"]
-			print("   |    pointer: %3d target: %-20s  |" % (key, value))
+			elif "pointer" in row:
+				key = row["pointer"]
+				value = row["target"]
+				print("   |    pointer: %3d target: %-20s  |" % (key, value))
 
-		else:
+			else:
 
-			print("   |    UNKNOWN: %25s |" % (row))
+				print("   |    UNKNOWN: %25s |" % (row))
 	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
 
 
