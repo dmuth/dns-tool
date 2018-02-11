@@ -26,9 +26,9 @@ It is a work in progress, and will be updated.
 ## Usage
 
 ```
-$ ./dns-tool.py google.com --text
 usage: dns-tool.py [-h] [--query-type QUERY_TYPE] [--json]
-                   [--json-pretty-print] [--text] [--debug] [--quiet]
+                   [--json-pretty-print] [--text] [--graph] [--debug]
+                   [--quiet]
                    query [server]
 
 Make DNS queries and tear apart the result packets
@@ -41,16 +41,19 @@ optional arguments:
   -h, --help            show this help message and exit
   --query-type QUERY_TYPE
                         Query type (Supported types: A, AAAA, CNAME, MX, SOA,
-                        NS)
+                        NS) Defalt: a
   --json                Output response as JSON
   --json-pretty-print   Output response as JSON Pretty-printed
   --text                Output response as formatted text
+  --graph               Output response as ASCII graph of DNS response packet
   --debug, -d           Enable debugging
   --quiet, -q           Quiet mode--only log errors
 ```
 
 
 ## Sample Run
+
+### Text output
 
 Let's run a query for google.com:
 
@@ -86,6 +89,120 @@ Answers
    TTL:         154
    Raw RRDATA:  c0 0c 00 01 00 01 00 00 00 9a 00 04 ac d9 07 ee (len 4)
    Full RRDATA: {'ip': '172.217.7.238'}
+```
+
+
+### Graphs of DNS packets
+
+Want to see DNS packets graphed?  Watch this!
+```
+./dns-tool.py --query-type mx gmail.com --graph
+
+Question
+========
+
+                                1  1  1  1  1  1
+     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  QNAME: gmail.com                                       |
+   |    len:  5 value: gmail                                 |
+   |    len:  3 value: com                                   |
+   |    len:  0 value: (nil)                                 |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  QTYPE:   15 - MX (Mail Exchange)                       |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   | QCLASS:   1 - IN                                        |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+
+Header
+======
+
+                                1  1  1  1  1  1
+     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   |             Request ID: 91dd                  |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   |QR| Opcode: 0 |  |  |RD|RA|  Z: 0  | RCODE: 0  |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   |          Question Count: 1                    |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   |          Answer Count: 5                      |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   |          Authority/Nameserver Count: 0        |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+   |          Additional Records Count: 0          |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+
+Answers
+=======
+
+                                1  1  1  1  1  1
+     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  NAME     : gmail.com                                   |
+   |    pointer:  12 target: gmail                           |
+   |        len:   0  value: (nil)                           |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  TYPE:   15 - MX (Mail Exchange)                        |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   | CLASS:   1 - IN                                         |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |   TTL:       3599 - 59 minutes from now                 |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |   RDLENGTH:  32                                         |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |     RDDATA: 20 alt2.gmail-smtp-in.l.google.com          |
+   |        len:   4  value: alt2                            |
+   |        len:  13  value: gmail-smtp-in                   |
+   |        len:   1  value: l                               |
+   |        len:   6  value: google                          |
+   |    pointer:  18 target: com                             |
+   |        len:   0  value: (nil)                           |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+
+                                1  1  1  1  1  1
+     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  NAME     : gmail.com                                   |
+   |    pointer:  12 target: gmail                           |
+   |        len:   0  value: (nil)                           |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  TYPE:   15 - MX (Mail Exchange)                        |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   | CLASS:   1 - IN                                         |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |   TTL:       3599 - 59 minutes from now                 |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |   RDLENGTH:   9                                         |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |     RDDATA: 40 alt4.gmail-smtp-in.l.google.com          |
+   |        len:   4  value: alt4                            |
+   |    pointer:  46 target: gmail-smtp-in                   |
+   |    pointer:  18 target: com                             |
+   |        len:   0  value: (nil)                           |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+
+                                1  1  1  1  1  1
+     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  NAME     : gmail.com                                   |
+   |    pointer:  12 target: gmail                           |
+   |        len:   0  value: (nil)                           |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |  TYPE:   15 - MX (Mail Exchange)                        |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   | CLASS:   1 - IN                                         |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |   TTL:       3599 - 59 minutes from now                 |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |   RDLENGTH:   4                                         |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+   |     RDDATA: 5 gmail-smtp-in.l.google.com                |
+   |    pointer:  46 target: gmail-smtp-in                   |
+   |    pointer:  18 target: com                             |
+   |        len:   0  value: (nil)                           |
+   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+
+[snip]
 ```
 
 
@@ -281,8 +398,6 @@ virtualenv --python=$(which python2.7) virtualenv
 . ./virtualenv/bin/activate
 pip install -r ./requirements.txt
 ```
-
-
 
 
 ## Credits
