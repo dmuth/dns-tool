@@ -71,20 +71,20 @@ def printQuestion(args, question, response):
 		print("")
 		print("                                1  1  1  1  1  1")
 		print("     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5")
-		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-		print("   |  QNAME: %-30s        |" % question["question"])
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+		print("   |  QNAME: %-40s        |" % question["question"])
 		for row in question["meta"]["data_decoded"]:
 			length = row["length"]
 			string = "(nil)"
 			if length:
 				string = row["string"]
-			print("   |    len: %2d value: %-27s |" % (row["length"], string))
+			print("   |    len: %2d value: %-37s |" % (row["length"], string))
 
-		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-		print("   |  QTYPE:  %3d - %-27s    |" % (question["qtype"], question["qtype_text"]))
-		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-		print("   | QCLASS: %3d - %-28s    |" % (question["qclass"], question["qclass_text"]))
-		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+		print("   |  QTYPE:  %3d - %-37s    |" % (question["qtype"], question["qtype_text"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+		print("   | QCLASS: %3d - %-38s    |" % (question["qclass"], question["qclass_text"]))
+		print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
 
 
 def printHeader(args, header, sanity):
@@ -205,13 +205,13 @@ def printAnswerGraph(answer, headers, meta):
 
 	print("                                1  1  1  1  1  1")
 	print("     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5")
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
     
 #+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--|
 #/                     RDATA                     /
 #+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 	
-	print("   |  NAME     : %-30s    |" % (rddata["question_text"]))
+	print("   |  NAME     : %-40s    |" % (rddata["question_text"]))
 
 	for row in rddata["question_meta"]["data_decoded"]:
 
@@ -221,27 +221,27 @@ def printAnswerGraph(answer, headers, meta):
 			value = "(nil)"
 			if row["length"]:
 				value = row["string"]
-			print("   |        len: %3d  value: %-20s  |" % (key, value))
+			print("   |        len: %3d  value: %-30s  |" % (key, value))
 
 		elif "pointer" in row:
 			key = row["pointer"]
 			value = row["target"]
-			print("   |    pointer: %3d target: %-20s  |" % (key, value))
+			print("   |    pointer: %3d target: %-30s  |" % (key, value))
 
 		else:
 
 			print("   |    UNKNOWN: %25s |" % (row))
 
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-	print("   |  TYPE:  %3d - %-28s    |" % (headers["type"], headers["type_text"]))
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-	print("   | CLASS: %3d - %-29s    |" % (headers["class"], headers["class_text"]))
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-	print("   |   TTL: %3d - %-29s    |" % (headers["ttl"], headers["ttl_text"]))
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-	print("   |   RDLENGTH: %3d                               |" % (headers["rdlength"]))
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
-	print("   |     RDDATA: %-30s    |" % (answer["rddata_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+	print("   |  TYPE:  %3d - %-38s    |" % (headers["type"], headers["type_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+	print("   | CLASS: %3d - %-39s    |" % (headers["class"], headers["class_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+	print("   |   TTL: %10d - %-33s   |" % (headers["ttl"], headers["ttl_text"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+	print("   |   RDLENGTH: %3d                                         |" % (headers["rdlength"]))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
+	print("   |     RDDATA: %-40s    |" % (answer["rddata_text"]))
 	if "meta" in rddata:
 		for row in rddata["meta"]["data_decoded"]:
 
@@ -251,17 +251,17 @@ def printAnswerGraph(answer, headers, meta):
 				value = "(nil)"
 				if row["length"]:
 					value = row["string"]
-				print("   |        len: %3d  value: %-20s  |" % (key, value))
+				print("   |        len: %3d  value: %-30s  |" % (key, value))
 
 			elif "pointer" in row:
 				key = row["pointer"]
 				value = row["target"]
-				print("   |    pointer: %3d target: %-20s  |" % (key, value))
+				print("   |    pointer: %3d target: %-30s  |" % (key, value))
 
 			else:
 
-				print("   |    UNKNOWN: %25s |" % (row))
-	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+")
+				print("   |    UNKNOWN: %35s |" % (row))
+	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
 
 
 def formatHex(data, delimiter = " ", group_size = 2):
