@@ -13,6 +13,7 @@ import json
 import logging
 import math
 import socket
+import sys
 
 import create
 import parse
@@ -38,6 +39,7 @@ parser.add_argument("--json-pretty-print", action = "store_true", help = "Output
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
 parser.add_argument("--graph", action = "store_true", help = "Output response as ASCII graph of DNS response packet")
 parser.add_argument("--raw", action = "store_true", help = "Output raw DNS packet and immediately exit")
+parser.add_argument("--stdin", action = "store_true", help = "Instead of making DNS query, read packet from stdin. (works great with --raw!)")
 parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
 parser.add_argument("--quiet", "-q", action = "store_true", help = "Quiet mode--only log errors")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
@@ -76,9 +78,20 @@ def sendUdpMessage(message, address, port):
 		#sock.sendto(bytearray(message, "iso8859-1"), server_address)
 		data, _ = sock.recvfrom(4096)
 
+		if args.stdin:
+			# Source: https://stackoverflow.com/a/38939320/196073
+			#source = sys.stdin.buffer # Python 3
+			source = sys.stdin
+			data = source.read()
+
 		if args.raw:
-			print data
-			return()
+			# Source: https://stackoverflow.com/a/4849792/196073
+			#sys.stdout.buffer.write(data) # Python 3
+
+			# https://stackoverflow.com/a/2374443/196073
+			for c in data:
+				sys.stdout.write(c)
+			sys.exit(0)
 
 		request_id = parse.getRequestId(message)
 
