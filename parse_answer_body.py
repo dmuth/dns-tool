@@ -4,6 +4,8 @@
 
 
 import struct
+import logging
+logger = logging
 
 import output
 import parse_question
