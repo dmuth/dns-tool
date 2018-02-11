@@ -37,6 +37,7 @@ parser.add_argument("--json", action = "store_true", help = "Output response as 
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
 parser.add_argument("--graph", action = "store_true", help = "Output response as ASCII graph of DNS response packet")
+parser.add_argument("--raw", action = "store_true", help = "Output raw DNS packet and immediately exit")
 parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
 parser.add_argument("--quiet", "-q", action = "store_true", help = "Quiet mode--only log errors")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
@@ -74,6 +75,10 @@ def sendUdpMessage(message, address, port):
 		sock.sendto(message, server_address)
 		#sock.sendto(bytearray(message, "iso8859-1"), server_address)
 		data, _ = sock.recvfrom(4096)
+
+		if args.raw:
+			print data
+			return()
 
 		request_id = parse.getRequestId(message)
 
