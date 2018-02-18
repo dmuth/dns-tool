@@ -34,6 +34,7 @@ parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart 
 parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
 parser.add_argument("server", nargs = "?", default = "8.8.8.8", help = "DNS server (default: 8.8.8.8)")
 parser.add_argument("--query-type", default = "a", help = "Query type (Supported types: A, AAAA, CNAME, MX, SOA, NS) Defalt: a")
+parser.add_argument("--request-id", default = "", help = "Hex value for a request ID (default: random)")
 parser.add_argument("--json", action = "store_true", help = "Output response as JSON")
 parser.add_argument("--json-pretty-print", action = "store_true", help = "Output response as JSON Pretty-printed")
 parser.add_argument("--text", action = "store_true", help = "Output response as formatted text")
@@ -61,7 +62,7 @@ def getDnsMessage(args):
 	getDnsMessage(args): Construct our DNS message to send
 	"""
 
-	header = create.createHeader()
+	header = create.createHeader(args)
 	logger.debug(parse.parseHeader(header))
 
 	question = create.createQuestion(args.query, args.query_type)

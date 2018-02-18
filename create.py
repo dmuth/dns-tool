@@ -62,17 +62,31 @@ def convertTo16Bit(val):
 
 
 
-def createHeader():
-	"""createHeader(): Create a header for our question
+def createHeader(args):
+	"""createHeader(args): Create a header for our question
 
 	"""
 	retval = ""
 
+
+
+	if args.request_id:
+		#
+		# If the request ID is specified on the command line, parse the hex string.
+		#
+		request_id = int(args.request_id, 16)
+		if request_id > 65535:
+			raise Exception("Request ID of '%s' (%d) is over 65535!" % (
+				args.request_id, request_id))
+
+	else:
+		request_id = random.randint(0, 65535)
+
+
 	#
 	# The request ID is two bytes, so grab each byte, turn it into a char/string,
-	# and append it to the request ID.
+	# and append it to the retval.
 	#
-	request_id = random.randint(0, 65535)
 	request_id1 = request_id >> 8
 	request_id2 = request_id & 0xff
 	retval += chr(request_id1) + chr(request_id2)
