@@ -150,8 +150,6 @@ def parseMessage(args, message):
 	#
 	retval["sanity"] = sanity.go(retval["header"], retval["answers"], request_id)
 
-	retval["raw"] = output.formatHex(message)
-
 	return(retval)
 
 
