@@ -149,7 +149,7 @@ do
 	test_result "$QUERY --graph" "$RESULT" "$EXPECTED_GRAPH_HASH"
 
 
-	CMD_OUT="./dns-tool.py ${ARGS} --query-type ${TYPE} --raw --graph ${QUERY} ${DNS_SERVER}"
+	CMD_OUT="./dns-tool.py ${ARGS} --query-type ${TYPE} --raw ${QUERY} ${DNS_SERVER}"
 	CMD_IN="./dns-tool.py -q --text --stdin "
 	#echo "$CMD_OUT | $CMD_IN" # Debugging
 	RESULT=$($CMD_OUT | $CMD_IN | sha1sum | awk '{print $1}')

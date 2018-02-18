@@ -36,11 +36,35 @@ def parseArgs():
 
 	args = parser.parse_args()
 
+	#
+	# Don't require a query when --raw is used.
+	#
 	if not args.stdin:
 		if not args.query:
 			parser.error("A query is needed when --raw is not being used.")
 			parse.print_help()
 
+	#
+	# Can't use --json or any other output formatter with --raw.
+	#
+	if args.raw:
+
+		if args.json:
+			parser.error("Cannot use --json with --raw")
+			parse.print_help()
+
+		if args.text:
+			parser.error("Cannot use --text with --raw")
+			parse.print_help()
+
+		if args.graph:
+			parser.error("Cannot use --graph with --raw")
+			parse.print_help()
+
+
+	#
+	# Set our debugging level.
+	#
 	if args.debug:
 		logger.setLevel(logging.DEBUG)
 
