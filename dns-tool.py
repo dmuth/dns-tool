@@ -31,7 +31,8 @@ logger.setLevel(logging.INFO)
 # Parse our arguments.
 #
 parser = argparse.ArgumentParser(description = "Make DNS queries and tear apart the result packets")
-parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
+#parser.add_argument("query", help = "String to query for (e.g. \"google.com\")")
+parser.add_argument("query", nargs = "?", help = "String to query for (e.g. \"google.com\")")
 parser.add_argument("server", nargs = "?", default = "8.8.8.8", help = "DNS server (default: 8.8.8.8)")
 parser.add_argument("--query-type", default = "a", help = "Query type (Supported types: A, AAAA, CNAME, MX, SOA, NS) Defalt: a")
 parser.add_argument("--request-id", default = "", help = "Hex value for a request ID (default: random)")
@@ -48,6 +49,11 @@ parser.add_argument("--quiet", "-q", action = "store_true", help = "Quiet mode--
 #parser.add_argument("--filter", help = "Filename text to filter on")
 
 args = parser.parse_args()
+
+if not args.stdin:
+	if not args.query:
+		parser.error("A query is needed when --raw is not being used.")
+		parse.print_help()
 
 if args.debug:
 	logger.setLevel(logging.DEBUG)
@@ -76,20 +82,10 @@ def getDnsMessage(args):
 
 def sendDnsMessage(args, message):
 	"""
-	sendDnsMessage(args, message): Send our DNS message (unless we're reading from stdin) and then return the result.
+	sendDnsMessage(args, message): Send our DNS message and then return the result.
 	"""
 
 	retval = ""
-
-	#
-	# If we're reading from standard input, do that right here.
-	#
-	if args.stdin:
-		# Source: https://stackoverflow.com/a/38939320/196073
-		#source = sys.stdin.buffer # Python 3
-		source = sys.stdin
-		retval = source.read()
-		return(retval)
 
 	#
 	# Otherwise, looks like we're sending an actual DNS query!
@@ -154,14 +150,24 @@ def parseMessage(args, message):
 
 
 #
-# Get our DNS message (be it assembling the message or reading from stdin)
+# If we're reading from standard input, do that right here.
 #
-message = getDnsMessage(args)
+if args.stdin:
+	# Source: https://stackoverflow.com/a/38939320/196073
+	#source = sys.stdin.buffer # Python 3
+	source = sys.stdin
+	message = source.read()
 
-#
-# Send out the DNS message (be it a query or writing to stdout and then exiting)
-#
-message = sendDnsMessage(args, message)
+else:
+	#
+	# Get our DNS message to send if not reading from stdin
+	#
+	message = getDnsMessage(args)
+
+	#
+	# Send out the DNS message
+	#
+	message = sendDnsMessage(args, message)
 
 #
 # Parse our message that we got from the DNS server or stdin.
