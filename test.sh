@@ -24,7 +24,14 @@ declare -a ANSWERS=(
 	#"BADns.test.dmuth.org" # Debugging
 	"ns.test.dmuth.org"
 	)
-
+declare -a ANSWERS_MULTI=(
+	"127.0.0.101 127.0.0.102 "
+	"fe80:0000:0000:0000:0000:0000:0000:0002 fe80:0000:0000:0000:0000:0000:0000:0003 "
+	"20 test2.dmuth.org 30 test3.dmuth.org "
+	"ns-765.awsdns-31.net awsdns-hostmaster.amazon.com 1 7200 900 1209600 86400 "
+	"ns-765.awsdns-31.net awsdns-hostmaster.amazon.com 1 7200 900 1209600 86400 "
+	"ns.test.dmuth.org ns2.test.dmuth.org "
+	)
 declare -a ANSWERS_JSON_HASH=(
 	"b815f1d664a28c7de2614f6e190ab6266f1d9c85"
 	"468131187f09eca3bb483da4a9bb39bd54d69f9e"
@@ -74,7 +81,7 @@ function test_result() {
 
 	if test "$RESULT" == "$EXPECTED"
 	then
-		echo -e "   ${GREEN}[OK]${NC}    : result '${RESULT}' == '${EXPECTED}' for query '${QUERY}'"
+		echo -e "   ${GREEN}[OK]${NC}    : result '${RESULT}' checks out for query '${QUERY}'"
 
 	else
 		echo -e "   ${RED}[ERROR]${NC} : result '${RESULT}' != '${EXPECTED}' for query '${QUERY}'"
@@ -102,20 +109,30 @@ do
 	fi
 
 	QUERY="${TYPE}.test.dmuth.org"
+	QUERY2="${TYPE}2.test.dmuth.org"
+
 	EXPECTED="${ANSWERS[$INDEX]}"
+	EXPECTED_MULTI="${ANSWERS_MULTI[$INDEX]}"
 	EXPECTED_JSON_HASH="${ANSWERS_JSON_HASH[$INDEX]}"
 	EXPECTED_TEXT_HASH="${ANSWERS_TEXT_HASH[$INDEX]}"
 	EXPECTED_GRAPH_HASH="${ANSWERS_GRAPH_HASH[$INDEX]}"
 	EXPECTED_RAW_STDIN_HASH="${ANSWERS_RAW_STDIN_HASH[$INDEX]}"
-	
+
 	RESULT=$(./dns-tool.py -q --query-type ${TYPE} --json ${QUERY} ${DNS_SERVER} | jq -r .answers[].rddata_text)
 	test_result "$QUERY" "$RESULT" "$EXPECTED"
+
+	#
+	# Test against records that return multiple results.
+	# We can't do this for json, test, and graph because the order is not guaranteed.
+	# (Maybe I can add an option for sorting in the future)
+	#
+	RESULT=$(./dns-tool.py -q --query-type ${TYPE} --json ${QUERY2} ${DNS_SERVER} | jq -r .answers[].rddata_text |sort |tr "\n" " ")
+	test_result "$QUERY" "$RESULT" "$EXPECTED_MULTI"
 
 
 	RESULT=$(./dns-tool.py -q --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --request-id 1 --json --fake-ttl \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --json" "$RESULT" "$EXPECTED_JSON_HASH"
-
 
 	RESULT=$(./dns-tool.py -q --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --request-id 1 --text --fake-ttl \
 		| sha1sum | awk '{print $1}')
