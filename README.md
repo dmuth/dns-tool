@@ -396,10 +396,8 @@ testing full runs of the script and comparing the outputs.
 
 ## TODO List
 
-- Store raw packets to disk with `--raw` and read them with `--stdin`
 - BUG: Doing a query for `foobar` returns a payload with a different offset.
 - Make this run in Python 3 like a civilized application.
-- Refactor tests
 - Put this entire app into a Pip package
 - Handle RDNS queries/responses
 - Unit testing for parsing functions
