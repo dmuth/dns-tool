@@ -26,10 +26,10 @@ It is a work in progress, and will be updated.
 ## Usage
 
 ```
-usage: dns-tool.py [-h] [--query-type QUERY_TYPE] [--json]
-                   [--json-pretty-print] [--text] [--graph] [--debug]
-                   [--quiet]
-                   query [server]
+usage: dns-tool.py [-h] [--query-type QUERY_TYPE] [--request-id REQUEST_ID]
+                   [--json] [--json-pretty-print] [--text] [--graph] [--raw]
+                   [--stdin] [--fake-ttl] [--debug] [--quiet]
+                   [query] [server]
 
 Make DNS queries and tear apart the result packets
 
@@ -42,10 +42,17 @@ optional arguments:
   --query-type QUERY_TYPE
                         Query type (Supported types: A, AAAA, CNAME, MX, SOA,
                         NS) Defalt: a
+  --request-id REQUEST_ID
+                        Hex value for a request ID (default: random)
   --json                Output response as JSON
   --json-pretty-print   Output response as JSON Pretty-printed
   --text                Output response as formatted text
   --graph               Output response as ASCII graph of DNS response packet
+  --raw                 Output raw DNS packet and immediately exit
+  --stdin               Instead of making DNS query, read packet from stdin.
+                        (works great with --raw!)
+  --fake-ttl            Set a fake TTL, for use in test scripts where hashes
+                        are made of the output
   --debug, -d           Enable debugging
   --quiet, -q           Quiet mode--only log errors
 ```
