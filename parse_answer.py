@@ -14,9 +14,9 @@ import parse_question
 logger = logging.getLogger()
 
 
-def parseAnswerHeaders(data):
+def parseAnswerHeaders(args, data):
 	"""
-	parseAnswerHeaders(data): Parse the headers out of our answer
+	parseAnswerHeaders(args, data): Parse the headers out of our answer
 	"""
 
 	retval = {}
@@ -40,16 +40,21 @@ def parseAnswerHeaders(data):
 	retval["class_text"] = parse_question.parseQclass(retval["class"])
 
 	#data = data[0:6] + "0" + data[7:] # Debugging - Make the TTL 25+ years
-	retval["ttl"] = ( ( 16777216 * ord(data[6]) ) + ( 65536 * ord(data[7]) ) + ( 256 * ord(data[8])) ) + ord(data[9])
+	if args.fake_ttl:
+		retval["ttl"] = -1
+
+	else:
+		retval["ttl"] = ( ( 16777216 * ord(data[6]) ) + ( 65536 * ord(data[7]) ) + ( 256 * ord(data[8])) ) + ord(data[9])
+
 	retval["ttl_text"] = humanize.naturaltime(datetime.datetime.now() + datetime.timedelta(seconds = retval["ttl"]))
 	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
 
 	return(retval)
 
 
-def parseAnswers(data, question_length = 0):
+def parseAnswers(args, data, question_length = 0):
 	"""
-	parseAnswers(data): Parse all answers given to a query
+	parseAnswers(args, data): Parse all answers given to a query
 	"""
 
 	retval = []
@@ -73,7 +78,16 @@ def parseAnswers(data, question_length = 0):
 		answer = {}
 		logger.debug("parseAnswers(): Index is currently %d" % index)
 	
-		answer["headers"] = parseAnswerHeaders(data[index:])
+		#
+		# If we're doing a fake TTL, we also have to fudge the response header and overwrite
+		# the original TTL.  In this case, we're doing to overwrite it with the 4 byte string
+		# of 0xDEADBEEF, so that it will be obvious upon inspection that this string was human-made.
+		#
+		if args.fake_ttl:
+			ttl_index = index + 6
+			data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
+
+		answer["headers"] = parseAnswerHeaders(args, data[index:])
 
 		#
 		# Advance our index to the start of the next answer, then put this entire

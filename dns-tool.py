@@ -41,6 +41,7 @@ parser.add_argument("--text", action = "store_true", help = "Output response as 
 parser.add_argument("--graph", action = "store_true", help = "Output response as ASCII graph of DNS response packet")
 parser.add_argument("--raw", action = "store_true", help = "Output raw DNS packet and immediately exit")
 parser.add_argument("--stdin", action = "store_true", help = "Instead of making DNS query, read packet from stdin. (works great with --raw!)")
+parser.add_argument("--fake-ttl", action = "store_true", help = "Set a fake TTL, for use in test scripts where hashes are made of the output")
 parser.add_argument("--debug", "-d", action = "store_true", help = "Enable debugging")
 parser.add_argument("--quiet", "-q", action = "store_true", help = "Quiet mode--only log errors")
 #parser.add_argument("file", nargs="?", help = "JSON file to write (default: output.json)", default = "output.json")
@@ -142,7 +143,7 @@ def parseMessage(args, message):
 	# Send us past the headers and question and parse the answer(s).
 	#
 	answer_index = 12 + retval["question"]["question_length"]
-	retval["answers"] = parse_answer.parseAnswers(message, question_length = retval["question"]["question_length"])
+	retval["answers"] = parse_answer.parseAnswers(args, message, question_length = retval["question"]["question_length"])
 
 	#
 	# Do a sanity check on the results.
