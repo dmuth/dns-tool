@@ -57,12 +57,12 @@ declare -a ANSWERS_GRAPH_HASH=(
 	"8f9bee3cab0c7654eeda704d6f92a2a64d17d1af"
 	)
 declare -a ANSWERS_RAW_STDIN_HASH=(
-	""
-	""
-	""
-	""
-	""
-	""
+	"e46731d9fcc7079a8cd5a3ee3b6a0b9c2e33e290"
+	"251f7192008dd437ec2f961009e2e98b09558054"
+	"162f329ab3c9983b959a17d578668e540f62bb81"
+	"03a325684847bd592c06f892b1b37909bc74f45b"
+	"fb326eedd537fe3c260eaff77064166fe47d18bc"
+	"691487d60cdd31c7222633b849be391f984c968b"
 	)
 
 RED='\033[0;31m'
@@ -149,16 +149,11 @@ do
 	test_result "$QUERY --graph" "$RESULT" "$EXPECTED_GRAPH_HASH"
 
 
-	#
-	# If I want this to work properly, I'll have to tweak parseAnswers() to return 
-	# a modified version of the message with the faked TTL when that's set so that
-	# the hash is consistent.
-	#
-	#CMD_OUT="./dns-tool.py -q --query-type ${TYPE} --raw --graph ${QUERY} ${DNS_SERVER} --request-id 1 --fake-ttl"
-	#CMD_IN="./dns-tool.py -q --text --stdin "
-	#echo "$CMD_OUT | $CMD_IN"
-	#RESULT=$($CMD_OUT | $CMD_IN | sha1sum | awk '{print $1}')
-	#test_result "$QUERY --raw | --stdin --text" "$RESULT" "$EXPECTED_RAW_STDIN_HASH"
+	CMD_OUT="./dns-tool.py ${ARGS} --query-type ${TYPE} --raw --graph ${QUERY} ${DNS_SERVER}"
+	CMD_IN="./dns-tool.py -q --text --stdin "
+	#echo "$CMD_OUT | $CMD_IN" # Debugging
+	RESULT=$($CMD_OUT | $CMD_IN | sha1sum | awk '{print $1}')
+	test_result "$QUERY --raw | --stdin --text" "$RESULT" "$EXPECTED_RAW_STDIN_HASH"
 
 	INDEX=$((INDEX += 1))
 

@@ -52,6 +52,61 @@ def parseAnswerHeaders(args, data):
 	return(retval)
 
 
+def parseAnswersFakeTtl(args, data, question_length):
+	"""
+	parseAnswersFakeTtl(args, data, question_length): A clone of parseAnswers, but all this function does
+		is set the TTL to 0xdeadbeef in answers and returned the altered message.  
+		This is used when --fake-ttl is specified with --raw, and is useful for testing purposes.
+	"""
+
+	#
+	# Skip the headers and question
+	#
+	index = 12 + question_length
+	logger.debug("question_length=%d total_length=%d" % (question_length, len(data)))
+
+	if index >= len(data):
+		logger.debug("parseAnswer(): index %d >= data length(%d), so no answers were received. Aborting." % (
+			index, len(data)))
+		return(data)
+
+	#
+	# Now loop through our answers.
+	#
+	while True:
+
+		answer = {}
+		logger.debug("parseAnswers(): Index is currently %d" % index)
+	
+		#
+		# If we're doing a fake TTL, we also have to fudge the response header and overwrite
+		# the original TTL.  In this case, we're doing to overwrite it with the 4 byte string
+		# of 0xDEADBEEF, so that it will be obvious upon inspection that this string was human-made.
+		#
+		#if args.fake_ttl:
+		#	ttl_index = index + 6
+		#	data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
+		ttl_index = index + 6
+		data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
+
+
+		#
+		# Advance our index to the start of the next answer
+		#
+		index_old = index
+		answer["headers"] = parseAnswerHeaders(args, data[index:])
+		index = index + 12 + answer["headers"]["rdlength"]
+
+		#
+		# If we've run off the end of the packet, then break out of this loop
+		#
+		if index >= len(data):
+			logger.debug("parseAnswer(): index %d >= data length (%d), stopping loop!" % (index, len(data)))
+			break
+
+	return(data)
+
+
 def parseAnswers(args, data, question_length = 0):
 	"""
 	parseAnswers(args, data): Parse all answers given to a query

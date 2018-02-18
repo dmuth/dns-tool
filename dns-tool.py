@@ -87,10 +87,18 @@ def parseMessage(args, message):
 	retval = {}
 
 	if args.raw:
+		# 
+		# If --fake-ttl was specified, rewrite the TTLs to be 0xdeadbeef.
+		# This is useful for testing.
+		#
+		if args.fake_ttl:
+			question = parse_question.parseQuestion(12, message)
+			message = parse_answer.parseAnswersFakeTtl(args, message, question_length = question["question_length"])
+
 		# Source: https://stackoverflow.com/a/4849792/196073
 		#sys.stdout.buffer.write(data) # Python 3
 
-		# https://stackoverflow.com/a/2374443/196073
+		# Source: https://stackoverflow.com/a/2374443/196073
 		for c in message:
 			sys.stdout.write(c)
 		sys.exit(0)
@@ -105,6 +113,7 @@ def parseMessage(args, message):
 	# Send us past the headers and question and parse the answer(s).
 	#
 	answer_index = 12 + retval["question"]["question_length"]
+
 	retval["answers"] = parse_answer.parseAnswers(args, message, question_length = retval["question"]["question_length"])
 
 	#
