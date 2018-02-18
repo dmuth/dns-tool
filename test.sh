@@ -118,28 +118,33 @@ do
 	EXPECTED_GRAPH_HASH="${ANSWERS_GRAPH_HASH[$INDEX]}"
 	EXPECTED_RAW_STDIN_HASH="${ANSWERS_RAW_STDIN_HASH[$INDEX]}"
 
-	RESULT=$(./dns-tool.py -q --query-type ${TYPE} --json ${QUERY} ${DNS_SERVER} | jq -r .answers[].rddata_text)
+	ARGS="-q --request-id 1 --fake-ttl"
+
+	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} --json ${QUERY} ${DNS_SERVER} | jq -r .answers[].rddata_text)
 	test_result "$QUERY" "$RESULT" "$EXPECTED"
 
 	#
 	# Test against records that return multiple results.
-	# We can't do this for json, test, and graph because the order is not guaranteed.
+	# Output is sorted and newlines are removed so that answers always the same oneliner.
+	#
+	# We can't do this for json, text, and graph because the order is not guaranteed.
 	# (Maybe I can add an option for sorting in the future)
 	#
-	RESULT=$(./dns-tool.py -q --query-type ${TYPE} --json ${QUERY2} ${DNS_SERVER} | jq -r .answers[].rddata_text |sort |tr "\n" " ")
+	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} --json ${QUERY2} ${DNS_SERVER} | jq -r .answers[].rddata_text |sort |tr "\n" " ")
 	test_result "$QUERY" "$RESULT" "$EXPECTED_MULTI"
 
 
-	RESULT=$(./dns-tool.py -q --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --request-id 1 --json --fake-ttl \
+	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --json \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --json" "$RESULT" "$EXPECTED_JSON_HASH"
 
-	RESULT=$(./dns-tool.py -q --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --request-id 1 --text --fake-ttl \
+
+	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --text \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --text" "$RESULT" "$EXPECTED_TEXT_HASH"
 
 
-	RESULT=$(./dns-tool.py -q --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --request-id 1 --graph --fake-ttl \
+	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --graph \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --graph" "$RESULT" "$EXPECTED_GRAPH_HASH"
 
