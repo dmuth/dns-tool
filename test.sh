@@ -85,8 +85,7 @@ function test_result() {
 
 	else
 		echo -e "   ${RED}[ERROR]${NC} : result '${RESULT}' != '${EXPECTED}' for query '${QUERY}'"
-		# TEST
-		#exit 1
+		#exit 1 # Debugging
 
 	fi
 
