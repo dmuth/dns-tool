@@ -396,9 +396,8 @@ testing full runs of the script and comparing the outputs.
 
 ## TODO List
 
-- BUG: Doing a query for `foobar` returns a payload with a different offset.
 - Make this run in Python 3 like a civilized application.
-- Put this entire app into a Pip package
+- Put this entire app into a Pip package (can I fetch with Git?)
 - Handle RDNS queries/responses
 - Unit testing for parsing functions
 - Docker container to run a custom DNS server

@@ -207,7 +207,14 @@ def parseAnswerSoa(answer, index, data):
 	#
 	# Skip the header
 	#
-	index += 12
+	# Note that if the leading byte is a zero, this is probably a SOA for a non-existant
+	# TLD, in which the question "pointer" really isn't a two byte pointer at all, but
+	# is instead a single byte, so I gotta plan accordingly.
+	#
+	if ord(data[index]) == 0:
+		index += 11
+	else:
+		index += 12
 
 	(mname, sanity_mname, meta_mname) = parse_question.extractDomainName(index, data)
 	index += len(mname) + 2

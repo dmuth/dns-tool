@@ -159,5 +159,14 @@ do
 done
 
 
+#
+# I have no idea if this value will change, so I'm doing this here, and checking plaintext 
+# instead of messing with hashes.
+#
+RESULT=$(./dns-tool.py -q --fake-ttl --request-id 0000 --json testing.invalid | jq -r .answers[].rddata_text)
+EXPECTED="a.root-servers.net nstld.verisign-grs.com 2018030101 1800 900 604800 86400"
+test_result "bad-tld" "$RESULT" "$EXPECTED"
+
+
 
 

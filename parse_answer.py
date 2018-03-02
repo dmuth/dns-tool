@@ -24,8 +24,7 @@ def parseAnswerHeaders(args, data):
 	#
 	# RR bytes:
 	#
-	# 0-1: Bits 2-15 contain the offset to the queston that this answer answers.
-	#	I will write code to handle this later.
+	# 0-1: Bits 2-15 contain the offset to the question that this answer answers.
 	# 2-3: Type
 	# 4-5: Class
 	# 6-9: TTL
@@ -33,8 +32,36 @@ def parseAnswerHeaders(args, data):
 	# 12+: RDDATA (The answer!)
 	#
 
-	retval["type"] = (256 * ord(data[2])) + ord(data[3])
-	retval["class"] = (256 * ord(data[4])) + ord(data[5])
+	#
+	# Set our offsets for the different parts of the Answer Header.
+	#
+	offset_type = 2
+	offset_class = 4
+	offset_ttl = 6
+	offset_rdlength = 10
+
+	#
+	# This is going to be the angriest comment of my entire career.
+	# Remember the part above where I saw the first two bytes are the offset
+	# to the question?  Well, if you do a specific type of query--a query against
+	# a non-existent TLD, you can forget what I just said.  In the case of a
+	# non-existant TLD such as "testing.bad", you won't get back a pointer to the question, nope!
+	# Instead what you'll get is a single byte which has the value of zero. Awesome!
+	#
+	# I don't know if it was mentioned somewhere in RFC 1035 and I just missed it,
+	# or if the behavior of DNS changed in a later RFC.  Either wya, this bug vexed me
+	# for WEEKS until I started going through actualy hex dumps and tracked it down.
+	# 
+	# /rant
+	#
+	if ord(data[0]) == 0:
+		offset_type -= 1
+		offset_class -= 1
+		offset_ttl -= 1
+		offset_rdlength -= 1
+
+	retval["type"] = (256 * ord(data[offset_type])) + ord(data[offset_type + 1])
+	retval["class"] = (256 * ord(data[offset_class])) + ord(data[offset_class + 1])
 
 	retval["type_text"] = parse_question.parseQtype(retval["type"])
 	retval["class_text"] = parse_question.parseQclass(retval["class"])
@@ -44,10 +71,10 @@ def parseAnswerHeaders(args, data):
 		retval["ttl"] = -1
 
 	else:
-		retval["ttl"] = ( ( 16777216 * ord(data[6]) ) + ( 65536 * ord(data[7]) ) + ( 256 * ord(data[8])) ) + ord(data[9])
+		retval["ttl"] = ( ( 16777216 * ord(data[offset_ttl]) ) + ( 65536 * ord(data[offset_ttl + 1]) ) + ( 256 * ord(data[offset_ttl + 2])) ) + ord(data[offset_ttl + 3])
 
 	retval["ttl_text"] = humanize.naturaltime(datetime.datetime.now() + datetime.timedelta(seconds = retval["ttl"]))
-	retval["rdlength"] = (256 * ord(data[10])) + ord(data[11])
+	retval["rdlength"] = (256 * ord(data[offset_rdlength])) + ord(data[offset_rdlength + 1])
 
 	return(retval)
 
@@ -140,6 +167,13 @@ def parseAnswers(args, data, question_length = 0):
 		#
 		if args.fake_ttl:
 			ttl_index = index + 6
+			#
+			# If the leading byte of the Answer Headers is zero (the question), then
+			# the question was for a bad TLD, and the "pointer" is really just a single
+			# byte, so go forward one byte less.
+			#
+			if ord(data[index]) == 0:
+				ttl_index -= 1
 			data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
 
 		answer["headers"] = parseAnswerHeaders(args, data[index:])
