@@ -95,11 +95,8 @@ def parseMessage(args, message):
 			message = parse_answer.parseAnswersFakeTtl(args, message, question_length = question["question_length"])
 
 		# Source: https://stackoverflow.com/a/4849792/196073
-		#sys.stdout.buffer.write(data) # Python 3
+		sys.stdout.buffer.write(message) # Python 3
 
-		# Source: https://stackoverflow.com/a/2374443/196073
-		for c in message:
-			sys.stdout.write(c)
 		sys.exit(0)
 
 	request_id = parse.getRequestId(message)
@@ -128,8 +125,7 @@ def parseMessage(args, message):
 #
 if args.stdin:
 	# Source: https://stackoverflow.com/a/38939320/196073
-	#source = sys.stdin.buffer # Python 3
-	source = sys.stdin
+	source = sys.stdin.buffer # Python 3
 	message = source.read()
 
 else:
