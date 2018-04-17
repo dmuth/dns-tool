@@ -114,7 +114,7 @@ def parseAnswersFakeTtl(args, data, question_length):
 		#	ttl_index = index + 6
 		#	data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
 		ttl_index = index + 6
-		data = data[0:ttl_index] + b"deadbeef" + data[ttl_index + 4:]
+		data = data[0:ttl_index] + struct.pack(">I", 0xdeadbeef) + data[ttl_index + 4:]
 
 
 		#
