@@ -34,9 +34,11 @@ def checkHeader(header, request_id):
 		warning = "Content of Z field in header is not zero: %s" % header["header"]["z"]
 		retval.append(warning)
 
-	#request_id = "beef" # Debugging
-	if header["request_id"] != request_id:
-		warning = "Request ID on answer (%s) != request ID of question (%s)!" % (header["request_id"], request_id)
+	#request_id = b"beef" # Debugging
+	request_id_text = request_id.decode("utf-8")
+
+	if header["request_id"] != request_id_text:
+		warning = "Request ID on answer (%s) != request ID of question (%s)!" % (header["request_id"], request_id_text)
 		retval.append(warning)
 
 	#header["header"]["opcode"] = 14 # Debugging
