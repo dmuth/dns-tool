@@ -182,7 +182,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 		# Chop off the first byte and get our domain-name
 		#
 		domain_name = data[index + 1:]
-		string = domain_name[0:length]
+		string = domain_name[0:length].decode("utf-8")
 
 
 		#
@@ -214,7 +214,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 		if retval:
 			retval += "."
 
-		retval += struct.unpack("%ds" % len(string), string)[0].decode("utf-8")
+		retval += string
 
 		index += 1 + length
 

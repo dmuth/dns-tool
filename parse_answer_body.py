@@ -211,7 +211,7 @@ def parseAnswerSoa(answer, index, data):
 	# TLD, in which the question "pointer" really isn't a two byte pointer at all, but
 	# is instead a single byte, so I gotta plan accordingly.
 	#
-	if ord(data[index]) == 0:
+	if data[index] == 0:
 		index += 11
 	else:
 		index += 12

@@ -172,9 +172,11 @@ def parseAnswers(args, data, question_length = 0):
 			# the question was for a bad TLD, and the "pointer" is really just a single
 			# byte, so go forward one byte less.
 			#
-			if ord(data[index]) == 0:
+			if data[index] == 0:
 				ttl_index -= 1
-			data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
+			data_new = bytes()
+			data_new = data[0:ttl_index] + struct.pack(">I", 0xdeadbeef) + data[ttl_index + 4:]
+			data = data_new
 
 		answer["headers"] = parseAnswerHeaders(args, data[index:])
 

@@ -10,6 +10,19 @@ import logging
 
 logger = logging.getLogger()
 
+#
+# Borrowed from https://docs.python.org/2/library/json.html
+# This is used to print out object types when debugging where a bytes
+# array is breaking JSON.dumps().
+#
+# To use it: 
+#
+#	json.dumps(data, cls = ComplexEncoder)
+#
+class ComplexEncoder(json.JSONEncoder):
+	def default(self, obj):
+		print("Object type", type(obj), obj)
+		#return json.JSONEncoder.default(self, obj)
 
 def printResponse(args, response):
 	"""
@@ -17,7 +30,6 @@ def printResponse(args, response):
 	"""
 
 	#print(formatHex(response)) # Debugging
-	#print(response)
 	if args.json:
 		print(json.dumps(response))
 

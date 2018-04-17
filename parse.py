@@ -99,7 +99,7 @@ def parseHeader(data):
 	retval = {}
 
 	request_id = data[0:2]
-	retval["request_id"] = binascii.hexlify(request_id)
+	retval["request_id"] = binascii.hexlify(request_id).decode("utf-8")
 
 	#
 	# Header flag bits:
