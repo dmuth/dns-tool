@@ -98,11 +98,6 @@ def parseHeader(data):
 
 	retval = {}
 
-	#
-	# TODO:
-	# Okay, on the first call, this is a string!  But what we really want are bytes!
-	# So we need to change the output of createHeader() to be a bytes() array!
-	#
 	request_id = data[0:2]
 	retval["request_id"] = binascii.hexlify(request_id)
 
