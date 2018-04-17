@@ -54,14 +54,14 @@ def parseAnswerHeaders(args, data):
 	# 
 	# /rant
 	#
-	if ord(data[0]) == 0:
+	if data[0] == 0:
 		offset_type -= 1
 		offset_class -= 1
 		offset_ttl -= 1
 		offset_rdlength -= 1
 
-	retval["type"] = (256 * ord(data[offset_type])) + ord(data[offset_type + 1])
-	retval["class"] = (256 * ord(data[offset_class])) + ord(data[offset_class + 1])
+	retval["type"] = (256 * data[offset_type]) + data[offset_type + 1]
+	retval["class"] = (256 * data[offset_class]) + data[offset_class + 1]
 
 	retval["type_text"] = parse_question.parseQtype(retval["type"])
 	retval["class_text"] = parse_question.parseQclass(retval["class"])
@@ -71,10 +71,10 @@ def parseAnswerHeaders(args, data):
 		retval["ttl"] = -1
 
 	else:
-		retval["ttl"] = ( ( 16777216 * ord(data[offset_ttl]) ) + ( 65536 * ord(data[offset_ttl + 1]) ) + ( 256 * ord(data[offset_ttl + 2])) ) + ord(data[offset_ttl + 3])
+		retval["ttl"] = ( 16777216 * data[offset_ttl] ) + ( 65536 * data[offset_ttl + 1] ) + ( 256 * data[offset_ttl + 2] ) + data[offset_ttl + 3] 
 
 	retval["ttl_text"] = humanize.naturaltime(datetime.datetime.now() + datetime.timedelta(seconds = retval["ttl"]))
-	retval["rdlength"] = (256 * ord(data[offset_rdlength])) + ord(data[offset_rdlength + 1])
+	retval["rdlength"] = (256 * data[offset_rdlength]) + data[offset_rdlength + 1]
 
 	return(retval)
 

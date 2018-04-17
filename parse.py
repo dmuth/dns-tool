@@ -5,6 +5,7 @@
 
 import binascii
 import logging
+import struct
 
 import parse_answer
 
@@ -97,7 +98,13 @@ def parseHeader(data):
 
 	retval = {}
 
-	retval["request_id"] = binascii.hexlify(data[0:2])
+	#
+	# TODO:
+	# Okay, on the first call, this is a string!  But what we really want are bytes!
+	# So we need to change the output of createHeader() to be a bytes() array!
+	#
+	request_id = data[0:2]
+	retval["request_id"] = binascii.hexlify(request_id)
 
 	#
 	# Header flag bits:
@@ -111,27 +118,29 @@ def parseHeader(data):
 	# 9-11 - Z: These reserved bits are always set to zero.
 	# 12-15 - RCODE: Result Code.  0 for no errors.
 	#
-	logger.debug("Header Flags: %s: %s %s" % (binascii.hexlify(data[2:4]), bin(ord(data[2])), bin(ord(data[3]))))
+	header = data[2:4]
+	logger.debug("Header Flags: %s: %s %s" % (binascii.hexlify(header), data[2], data[3]))
 
 	retval["header"] = {}
-	retval["header"]["qr"] = (ord(data[2]) & 0b10000000) >> 7
-	retval["header"]["opcode"] = (ord(data[2]) & 0b01111000) >> 3
-	retval["header"]["aa"] = (ord(data[2]) & 0b00000100) >> 2
-	retval["header"]["tc"] = (ord(data[2]) & 0b00000010) >> 1
-	retval["header"]["rd"] = (ord(data[2]) & 0b00000001)
-	retval["header"]["ra"] = (ord(data[3]) & 0b10000000) >> 7
-	retval["header"]["z"]  = (ord(data[3]) & 0b01110000) >> 4
-	retval["header"]["rcode"] = (ord(data[3]) & 0b00001111)
 	
+	retval["header"]["qr"] = (data[2] & 0b10000000) >> 7
+	retval["header"]["opcode"] = (data[2] & 0b01111000) >> 3
+	retval["header"]["aa"] = (data[2] & 0b00000100) >> 2
+	retval["header"]["tc"] = (data[2] & 0b00000010) >> 1
+	retval["header"]["rd"] = (data[2] & 0b00000001)
+	retval["header"]["ra"] = (data[3] & 0b10000000) >> 7
+	retval["header"]["z"]  = (data[3] & 0b01110000) >> 4
+	retval["header"]["rcode"] = (data[3] & 0b00001111)
+
 	#
 	# Create text versions of our header fields
 	#
 	retval["header_text"] = parseHeaderText(retval["header"])
 
-	retval["num_questions"] = binascii.hexlify(data[4:6])
-	retval["num_answers"] = binascii.hexlify(data[6:8])
-	retval["num_authority_records"] = binascii.hexlify(data[8:10])
-	retval["num_additional_records"] = binascii.hexlify(data[10:12])
+	retval["num_questions"] = struct.unpack(">H", data[4:6])[0]
+	retval["num_answers"] = struct.unpack(">H", data[6:8])[0]
+	retval["num_authority_records"] = struct.unpack(">H", data[8:10])[0]
+	retval["num_additional_records"] = struct.unpack(">H", data[10:12])[0]
 
 	return(retval)
 

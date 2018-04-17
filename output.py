@@ -273,17 +273,12 @@ def formatHex(data, delimiter = " ", group_size = 2):
 	group_size - How many characters do we want in a group?
 	"""
 
-	# Python 2
-	hex = binascii.hexlify(data)
+	if not isinstance(data, bytes):
+		hex = bytearray(data, "iso8859-1").hex()
+	else:
+		hex = data.hex()
+	
 	retval = delimiter.join(hex[i:i + group_size] for i in range(0, len(hex), group_size))
-
-	# Python 3
-	#if not isinstance(data, bytes):
-	#	hex = bytearray(data, "iso8859-1").hex()
-	#else:
-	#	hex = data.hex()
-	#
-	#retval = delimiter.join(hex[i:i + group_size] for i in range(0, len(hex), group_size))
 
 	return(retval)
 

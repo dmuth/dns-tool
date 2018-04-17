@@ -66,7 +66,6 @@ def sendDnsMessage(args, message):
 	try:
 		logger.info("Sending query to %s:%s..." % (args.server, 53))
 		sock.sendto(message, server_address)
-		#sock.sendto(bytearray(message, "iso8859-1"), server_address)
 		retval, _ = sock.recvfrom(4096)
 
 	except socket.error as e:

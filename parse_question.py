@@ -1,6 +1,7 @@
 
 
 import logging
+import struct
 
 import output
 
@@ -90,8 +91,8 @@ def parseQuestion(index, data):
 	#
 	data = data[index:]
 
-	retval["qtype"] = (256 * ord(data[0])) + ord(data[1])
-	retval["qclass"] = (256 * ord(data[2])) + ord(data[3])
+	retval["qtype"] = (256 * data[0]) + data[1]
+	retval["qclass"] = (256 * data[2]) + data[3]
 	data = data[4:]
 
 	retval["qtype_text"] = parseQtype(retval["qtype"], question = True)
@@ -132,7 +133,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 
 	while True:
 
-		length = int(ord(data[index]))
+		length = data[index]
 		if debug_bad_pointer:
 			length = 0b01000000 # Debugging
 
@@ -160,7 +161,7 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 
 			beenhere[pointer] = True
 
-			length = int(ord(data[pointer]))
+			length = int(data[pointer])
 
 			#
 			# If this is our first pointer, make a note of what's two bytes after that, as 
@@ -212,7 +213,8 @@ def extractDomainName(index, data, debug_bad_pointer = False):
 
 		if retval:
 			retval += "."
-		retval += string
+
+		retval += struct.unpack("%ds" % len(string), string)[0].decode("utf-8")
 
 		index += 1 + length
 
@@ -228,8 +230,8 @@ def getPointerAddress(data):
 	getPointerAdrress(data): Return the address of a pointer
 	"""
 
-	pointer1 = int(ord(data[0])) & 0b00111111
-	pointer2 = int(ord(data[1])) & 0b11111111
+	pointer1 = int(data[0]) & 0b00111111
+	pointer2 = int(data[1]) & 0b11111111
 
 	retval = (256 * pointer1) + pointer2
 

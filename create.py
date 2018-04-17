@@ -5,6 +5,7 @@
 import logging
 import math
 import random
+import struct
 
 
 logger = logging.getLogger()
@@ -65,10 +66,11 @@ def convertTo16Bit(val):
 def createHeader(args):
 	"""createHeader(args): Create a header for our question
 
+	An array of bytes is returned.
+
 	"""
-	retval = ""
 
-
+	retval = bytes()
 
 	if args.request_id:
 		#
@@ -89,7 +91,7 @@ def createHeader(args):
 	#
 	request_id1 = request_id >> 8
 	request_id2 = request_id & 0xff
-	retval += chr(request_id1) + chr(request_id2)
+	retval += struct.pack("B", request_id1) + struct.pack("B", request_id2)
 
 	# Flags
 	flags = [0, 0]
@@ -112,21 +114,21 @@ def createHeader(args):
 	#
 	# Add in our header
 	#
-	retval += chr(flags[0]) + chr(flags[1])
+	retval += struct.pack("B", flags[0]) + struct.pack("B", flags[1])
 
 
 	# QDCOUNT - Number of questions
 	qdcount = 1
-	retval += convertTo16Bit(qdcount)
+	retval += struct.pack(">H", qdcount)
 
 	# ANCOUNT - Number of answer
-	retval += convertTo16Bit(0)
+	retval += struct.pack(">H", 0)
 
 	# NSCOUNT - Number of authority records
-	retval += convertTo16Bit(0)
+	retval += struct.pack(">H", 0)
 
 	# ARCOUNT - Number of additional records
-	retval += convertTo16Bit(0)
+	retval += struct.pack(">H", 0)
 
 	return(retval)
 
@@ -134,9 +136,11 @@ def createHeader(args):
 def createQuestion(q, query_type):
 	"""createQuestion(q, query_type): Create the question part of our query
 
+	An array of bytes is returned.
+
 	"""
 
-	retval = ""
+	retval = bytes()
 
 	#
 	# Split up our query, go through each part of it, 
@@ -145,23 +149,24 @@ def createQuestion(q, query_type):
 	parts = q.split(".")
 
 	for part in parts:
-		retval += chr(len(part)) + part
+		retval += struct.pack("B", len(part))
+		retval += struct.pack("%ds" % len(part), bytes(part, "utf-8"))
 
 	#
 	# End the question with a zero.
 	#
-	retval += chr(0)
+	retval += struct.pack("B", 0)
 
 	if query_type in query_types:
 		qtype = query_types[query_type]
 	else:
 		raise Exception("Unknown query_type: %s" % query_type)
 
-	retval += convertTo16Bit(qtype)
+	retval += struct.pack(">H", qtype)
 
 	# QCLASS - 1 is IN
 	qclass = 1
-	retval += convertTo16Bit(qclass)
+	retval += struct.pack(">H", qclass)
 
 	return(retval)
 

@@ -82,8 +82,8 @@ def parseAnswerA(answer, index, data):
 
 	retval = {}
 
-	text = (str(ord(answer[0])) + "." + str(ord(answer[1])) 
-		+ "." + str(ord(answer[2])) + "." + str(ord(answer[3])))
+	text = (str(answer[0]) + "." + str(answer[1]) 
+		+ "." + str(answer[2]) + "." + str(answer[3]))
 
 	retval["ip"] = text
 	#
