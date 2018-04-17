@@ -29,7 +29,6 @@ def printResponse(args, response):
 	printResponse(args, response): Print up our response in 1 or more formats.
 	"""
 
-	#print(formatHex(response)) # Debugging
 	if args.json:
 		print(json.dumps(response))
 
