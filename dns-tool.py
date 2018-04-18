@@ -87,7 +87,8 @@ def parseMessage(args, message):
 
 	if args.raw:
 		# 
-		# If --fake-ttl was specified, rewrite the TTLs to be 0xdeadbeef.
+		# If --fake-ttl was specified, rewrite the TTLs.  We'll make them -3 (4294967293), which 
+		# is unlikely to occur in nature.
 		# This is useful for testing.
 		#
 		if args.fake_ttl:

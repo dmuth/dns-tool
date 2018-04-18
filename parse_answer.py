@@ -66,8 +66,9 @@ def parseAnswerHeaders(args, data):
 	retval["type_text"] = parse_question.parseQtype(retval["type"])
 	retval["class_text"] = parse_question.parseQclass(retval["class"])
 
-	#data = data[0:6] + "0" + data[7:] # Debugging - Make the TTL 25+ years
+	#data = data[0:6] + struct.pack("B", 48) + data[7:] # Debugging - Make the TTL 25+ years
 	if args.fake_ttl:
+		logger.debug("parseAnswerHeaders(): --fake-ttl is set, setting TTL to -1")
 		retval["ttl"] = -1
 
 	else:
@@ -103,19 +104,16 @@ def parseAnswersFakeTtl(args, data, question_length):
 	while True:
 
 		answer = {}
-		logger.debug("parseAnswers(): Index is currently %d" % index)
+		logger.debug("parseAnswersFakeTtl(): Index is currently %d" % index)
 	
 		#
 		# If we're doing a fake TTL, we also have to fudge the response header and overwrite
-		# the original TTL.  In this case, we're doing to overwrite it with the 4 byte string
-		# of 0xDEADBEEF, so that it will be obvious upon inspection that this string was human-made.
+		# the original TTL.  In this case, we're doing to overwrite it with -3 (4294967293).
+		# That is a number (hopefully) unlikely to occur in nature.
 		#
-		#if args.fake_ttl:
-		#	ttl_index = index + 6
-		#	data = data[0:ttl_index] + "\xde\xad\xbe\xef" + data[ttl_index + 4:]
 		ttl_index = index + 6
-		data = data[0:ttl_index] + struct.pack(">I", 0xdeadbeef) + data[ttl_index + 4:]
-
+		logger.debug("parseAnswersFakeTtl(): --fake-ttl set, forcing TTL to be -3")
+		data = data[0:ttl_index] + struct.pack(">i", -3) + data[ttl_index + 4:]
 
 		#
 		# Advance our index to the start of the next answer
@@ -148,7 +146,7 @@ def parseAnswers(args, data, question_length = 0):
 	logger.debug("question_length=%d total_length=%d" % (question_length, len(data)))
 
 	if index >= len(data):
-		logger.debug("parseAnswer(): index %d >= data length(%d), so no answers were received. Aborting." % (
+		logger.debug("parseAnswers(): index %d >= data length(%d), so no answers were received. Aborting." % (
 			index, len(data)))
 		return(retval)
 
@@ -175,7 +173,8 @@ def parseAnswers(args, data, question_length = 0):
 			if data[index] == 0:
 				ttl_index -= 1
 			data_new = bytes()
-			data_new = data[0:ttl_index] + struct.pack(">I", 0xdeadbeef) + data[ttl_index + 4:]
+			logger.debug("parseAnswers(): --fake-ttl specified, forcing TTL to be -2")
+			data_new = data[0:ttl_index] + struct.pack(">i", -2) + data[ttl_index + 4:]
 			data = data_new
 
 		answer["headers"] = parseAnswerHeaders(args, data[index:])
