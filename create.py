@@ -39,30 +39,6 @@ query_types = {
 	}
 
 
-def convertTo16Bit(val):
-	"""
-	convertTo16Bit(val): Convert an integer into a 16-bit value
-
-	I'm honestly a bit rusty on how to "best" do this, so now I'm going to do it by hand.
-	"""
-
-	retval = ""
-
-	if val < 256:
-		retval = chr(0) + chr(val)
-
-	elif val < 65536:
-		ret1 = int(math.floor(val / 256))
-		ret2 = val % 256
-		retval = chr(ret1) + chr(ret2)
-
-	else:
-		raise Exception("Value %s is too large for a 16-bit int!" % val)
-
-	return(retval)
-
-
-
 def createHeader(args):
 	"""createHeader(args): Create a header for our question
 
