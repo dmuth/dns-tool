@@ -19,7 +19,7 @@ It is a work in progress, and will be updated.
 
 ## Requirements
 
-- Python 2.x
+- Python 3
 - A desire to learn more about how the Internet works
 
 
