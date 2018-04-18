@@ -218,10 +218,6 @@ def printAnswerGraph(answer, headers, meta):
 	print("     0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5")
 	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
     
-#+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--|
-#/                     RDATA                     /
-#+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-	
 	print("   |  NAME     : %-40s    |" % (rddata["question_text"]))
 
 	for row in rddata["question_meta"]["data_decoded"]:
@@ -242,6 +238,18 @@ def printAnswerGraph(answer, headers, meta):
 		else:
 
 			print("   |    UNKNOWN: %25s |" % (row))
+
+	#
+	# If the header was set to a negative very (or a very high positive value!)
+	# for debugging, ensure the number is negative and the text indicates that
+	# debugging is happening.
+	#
+	if headers["ttl"] >= 4294967293:
+		logger.debug("TTL is over 2**32-3, so subtract 2**32")
+		headers["ttl"] -= pow(2,32)
+
+	if headers["ttl"] < 0:
+		headers["ttl_text"] = "DEBUGGING"
 
 	print("   +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+------------+")
 	print("   |  TYPE:  %3d - %-38s    |" % (headers["type"], headers["type_text"]))
