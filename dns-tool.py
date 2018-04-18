@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # A script to send messages to DNS servers and parse the responses.
 # Based off of the example at https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html
