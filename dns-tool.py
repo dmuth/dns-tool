@@ -23,6 +23,13 @@ import output
 import sanity
 
 
+if sys.version_info.major < 3:
+	print("! ")
+	print("! Python version 3 or greater is required! (Version %d detected)" % sys.version_info.major)
+	print("! ")
+	sys.exit(1)
+
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(levelname)s: %(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
