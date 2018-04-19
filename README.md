@@ -374,16 +374,9 @@ guaranteed to return speific results.
 
 Running that script will produce a bunch of output like this:
 
-```
-   [OK]    : result '127.0.0.100' == '127.0.0.100' for query 'a.test.dmuth.org'
-   [OK]    : result 'b815f1d664a28c7de2614f6e190ab6266f1d9c85' == 'b815f1d664a28c7de2614f6e190ab6266f1d9c85' for query 'a.test.dmuth.org --json'
-   [OK]    : result 'aa4b9c40f0fc60df9f817f37832b8987c6239e78' == 'aa4b9c40f0fc60df9f817f37832b8987c6239e78' for query 'a.test.dmuth.org --text'
-   [OK]    : result 'd2aa805a48b598a9bffc6f135388ef75a4a65a4b' == 'd2aa805a48b598a9bffc6f135388ef75a4a65a4b' for query 'a.test.dmuth.org --graph'
-   [OK]    : result 'fe80:0000:0000:0000:0000:0000:0000:0001' == 'fe80:0000:0000:0000:0000:0000:0000:0001' for query 'aaaa.test.dmuth.org'
-```
+<img src="./img/dns-testing.png" />
 
-The first line is where the actual query result is compared, the subsequent lines
-are hashes of the output compared to what we should have gotten.
+Those are hashes of the output compared to what we should have gotten.
 
 
 ### Why not use PyTest?
