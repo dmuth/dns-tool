@@ -396,7 +396,8 @@ testing full runs of the script and comparing the outputs.
 
 ## TODO List
 
-- Make this run in Python 3 like a civilized application.
+Things I may do at some point, depending on time, timing, and other projects:
+
 - Put this entire app into a Pip package (can I fetch with Git?)
 - Handle RDNS queries/responses
 - Unit testing for parsing functions
