@@ -23,6 +23,11 @@ It is a work in progress, and will be updated.
 - A desire to learn more about how the Internet works
 
 
+## Installation
+
+`pip install git+https://github.com/dmuth/dns-tool/`
+
+
 ## Usage
 
 ```
@@ -391,7 +396,6 @@ testing full runs of the script and comparing the outputs.
 
 Things I may do at some point, depending on time, timing, and other projects:
 
-- Put this entire app into a Pip package (can I fetch with Git?)
 - Handle RDNS queries/responses
 - Unit testing for parsing functions
 - Docker container to run a custom DNS server
