@@ -30,10 +30,10 @@ def printResponse(args, response):
 	"""
 
 	if args.json:
-		print(json.dumps(response))
+		print(json.dumps(response, sort_keys = True))
 
 	if args.json_pretty_print:
-		print(json.dumps(response, indent = 2))
+		print(json.dumps(response, indent = 2, sort_keys = True))
 
 	if args.text or args.graph:
 		printResponseText(args, response)
@@ -200,7 +200,7 @@ def printAnswerText(answer, index,  headers, meta, sanity_answer):
 			print("      Pointer to offset %d, points to '%s'" % (pointer["pointer"], pointer["target"]))
 
 	print("   Raw RRDATA:  %s (len %s)" % (answer["rddata_hex"], headers["rdlength"]))
-	print("   Full RRDATA: %s" % (answer["rddata"]))
+	print("   Full RRDATA: %s" % (json.dumps(answer["rddata"], sort_keys = True)))
 
 	if len(sanity_answer):
 		for warning in sanity_answer:
