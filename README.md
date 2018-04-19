@@ -26,7 +26,7 @@ It is a work in progress, and will be updated.
 ## Usage
 
 ```
-usage: dns-tool.py [-h] [--query-type QUERY_TYPE] [--request-id REQUEST_ID]
+usage: dns-tool [-h] [--query-type QUERY_TYPE] [--request-id REQUEST_ID]
                    [--json] [--json-pretty-print] [--text] [--graph] [--raw]
                    [--stdin] [--fake-ttl] [--debug] [--quiet]
                    [query] [server]
@@ -65,7 +65,7 @@ optional arguments:
 Let's run a query for google.com:
 
 ```
-$ ./dns-tool.py google.com --text 
+$ ./dns-tool google.com --text 
 Question
 ========
    Question: google.com (len: 16)
@@ -103,7 +103,7 @@ Answers
 
 Want to see DNS packets graphed?  Watch this!
 ```
-./dns-tool.py --query-type mx gmail.com --graph
+./dns-tool --query-type mx gmail.com --graph
 
 Question
 ========

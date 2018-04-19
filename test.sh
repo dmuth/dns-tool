@@ -129,7 +129,7 @@ do
 
 	ARGS="-q --request-id 1 --fake-ttl"
 
-	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} --json ${QUERY} ${DNS_SERVER} | jq -r .answers[].rddata_text)
+	RESULT=$(./dns-tool ${ARGS} --query-type ${TYPE} --json ${QUERY} ${DNS_SERVER} | jq -r .answers[].rddata_text)
 	test_result "$QUERY" "$RESULT" "$EXPECTED"
 
 	#
@@ -139,27 +139,27 @@ do
 	# We can't do this for json, text, and graph because the order is not guaranteed.
 	# (Maybe I can add an option for sorting in the future)
 	#
-	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} --json ${QUERY2} ${DNS_SERVER} | jq -r .answers[].rddata_text |sort |tr "\n" " ")
+	RESULT=$(./dns-tool ${ARGS} --query-type ${TYPE} --json ${QUERY2} ${DNS_SERVER} | jq -r .answers[].rddata_text |sort |tr "\n" " ")
 	test_result "$QUERY" "$RESULT" "$EXPECTED_MULTI"
 
 
-	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --json \
+	RESULT=$(./dns-tool ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --json \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --json" "$RESULT" "$EXPECTED_JSON_HASH"
 
 
-	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --text \
+	RESULT=$(./dns-tool ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --text \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --text" "$RESULT" "$EXPECTED_TEXT_HASH"
 
 
-	RESULT=$(./dns-tool.py ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --graph \
+	RESULT=$(./dns-tool ${ARGS} --query-type ${TYPE} ${QUERY} ${DNS_SERVER} --graph \
 		| sha1sum | awk '{print $1}')
 	test_result "$QUERY --graph" "$RESULT" "$EXPECTED_GRAPH_HASH"
 
 
-	CMD_OUT="./dns-tool.py ${ARGS} --query-type ${TYPE} --raw ${QUERY} ${DNS_SERVER}"
-	CMD_IN="./dns-tool.py -q --text --stdin "
+	CMD_OUT="./dns-tool ${ARGS} --query-type ${TYPE} --raw ${QUERY} ${DNS_SERVER}"
+	CMD_IN="./dns-tool -q --text --stdin "
 	#echo "$CMD_OUT | $CMD_IN" # Debugging
 	RESULT=$($CMD_OUT | $CMD_IN | sha1sum | awk '{print $1}')
 	test_result "$QUERY --raw | --stdin --text" "$RESULT" "$EXPECTED_RAW_STDIN_HASH"
@@ -184,7 +184,7 @@ fi
 # I have no idea if this value will change, so I'm doing this here, and checking plaintext 
 # instead of messing with hashes.
 #
-RESULT=$(./dns-tool.py -q --fake-ttl --request-id 0000 --json testing.invalid | jq -r .answers[].rddata_text |sed ${SED_FLAG} 's/2018[0-9]+/SERIAL/')
+RESULT=$(./dns-tool -q --fake-ttl --request-id 0000 --json testing.invalid | jq -r .answers[].rddata_text |sed ${SED_FLAG} 's/2018[0-9]+/SERIAL/')
 EXPECTED="a.root-servers.net nstld.verisign-grs.com SERIAL 1800 900 604800 86400"
 test_result "bad-tld" "$RESULT" "$EXPECTED"
 
