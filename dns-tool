@@ -158,6 +158,9 @@ response = parseMessage(args, message)
 output.printResponse(args, response)
 
 
-
+if args.json or args.json_pretty_print or args.text or args.graph:
+	logger.info("Done!")
+else:
+	logger.info("Done, but no output was displayed.  Why not try --graph, --text, or --json-pretty-print?")
 
 
