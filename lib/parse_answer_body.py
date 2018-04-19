@@ -7,8 +7,8 @@ import struct
 import logging
 logger = logging
 
-import output
-import parse_question
+from lib import output
+from lib import parse_question
 
 
 def parseAnswerBody(answer, index, data):

@@ -3,7 +3,7 @@
 import logging
 import struct
 
-import output
+from lib import output
 
 logger = logging.getLogger()
 

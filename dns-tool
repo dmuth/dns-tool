@@ -14,13 +14,13 @@ import math
 import socket
 import sys
 
-import args
-import create
-import parse
-import parse_answer
-import parse_question
-import output
-import sanity
+from lib import args
+from lib import create
+from lib import parse
+from lib import parse_answer
+from lib import parse_question
+from lib import output
+from lib import sanity
 
 
 if sys.version_info.major < 3:

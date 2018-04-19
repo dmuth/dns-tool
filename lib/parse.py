@@ -7,7 +7,7 @@ import binascii
 import logging
 import struct
 
-import parse_answer
+import lib.parse_answer
 
 logger = logging.getLogger()
 

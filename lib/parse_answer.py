@@ -6,9 +6,9 @@ import struct
 
 import humanize
 
-import output
-import parse_answer_body
-import parse_question
+from lib import output
+from lib import parse_answer_body
+from lib import parse_question
 
 
 logger = logging.getLogger()
