@@ -12,3 +12,8 @@
 # Virtualenv
 virtualenv/
 
+#
+# Build-related
+#
+dns_tool.egg-info/
+
