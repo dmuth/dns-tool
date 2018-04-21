@@ -25,7 +25,7 @@ It is a work in progress, and will be updated.
 
 ## Installation
 
-`pip install git+https://github.com/dmuth/dns-tool/`
+`pip3 install git+https://github.com/dmuth/dns-tool/`
 
 
 ## Usage
