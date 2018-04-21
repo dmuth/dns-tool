@@ -417,6 +417,17 @@ virtualenv virtualenv
 pip install -r ./requirements.txt
 ```
 
+### Development within Docker
+
+To build a Docker container with dns-tool and start an interactive shell:
+
+```
+docker build . -t dns-tool && docker run -it -v $(pwd):/mnt dns-tool
+```
+
+This will create a container with Python 3 and a version of `dns-tool` installed via pip.
+This directory will be available in `/mnt/` in case you want to run the local copy for testing.
+
 
 ### Installing the package locally
 
