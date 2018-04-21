@@ -411,11 +411,8 @@ Things I may do at some point, depending on time, timing, and other projects:
 
 ## Development
 
-At the moment, this is written in Python 2.7, so you'll need to install Virtualenv to point 
-to your copy of Python 2.7:
-
 ```
-virtualenv --python=$(which python2.7) virtualenv
+virtualenv virtualenv
 . ./virtualenv/bin/activate
 pip install -r ./requirements.txt
 ```
