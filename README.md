@@ -418,6 +418,14 @@ pip install -r ./requirements.txt
 ```
 
 
+### Installing the package locally
+
+If you want to test out the Pip installation, the package can be installed
+locally with this command:
+
+`sudo pip install -e .`
+
+
 ## Credits
 
 - Icon made by <a href="https://www.flaticon.com/authors/gregor-cresnar" title="Gregor Cresnar">Gregor Cresnar</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>.
