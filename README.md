@@ -25,6 +25,17 @@ It is a work in progress, and will be updated.
 
 ## Installation
 
+### With Docker (and running with Docker)
+
+```
+docker pull dmuth1/dns-tool
+docker run dmuth1/dns-tool google.com --text # Or pass in any other args that you want!
+```
+
+
+
+### Locally
+
 `pip3 install git+https://github.com/dmuth/dns-tool/`
 
 
@@ -392,6 +403,43 @@ of those parameters and make sure that I get the right result, hence the reason 
 testing full runs of the script and comparing the outputs.
 
 
+## Development
+
+
+### Development within Docker
+
+To build a Docker container with dns-tool and start an interactive shell:
+
+```
+docker build . -t dns-tool && docker run -it -v $(pwd):/mnt --entrypoint sh dns-tool
+docker tag dns-tool dmuth1/dns-tool
+docker push dmuth1/dns-tool
+```
+
+This will create a container with Python 3 and a version of `dns-tool` installed via pip.
+This directory will be available in `/mnt/` in case you want to run the local copy (`/mnt/dns-tool`) for testing.
+
+
+### Development Locally
+
+```
+virtualenv virtualenv
+. ./virtualenv/bin/activate
+pip install -r ./requirements.txt
+```
+
+This will create a container with Python 3 and a version of `dns-tool` installed via pip.
+This directory will be available in `/mnt/` in case you want to run the local copy for testing.
+
+
+### Installing the package locally
+
+If you want to test out the Pip installation, the package can be installed
+locally with this command:
+
+`sudo pip install -e .`
+
+
 ## TODO List
 
 Things I may do at some point, depending on time, timing, and other projects:
@@ -407,34 +455,6 @@ Things I may do at some point, depending on time, timing, and other projects:
 - https://routley.io/tech/2017/12/28/hand-writing-dns-messages.html
 - http://www.tcpipguide.com/free/t_DNSMessageHeaderandQuestionSectionFormat.htm
 - https://tools.ietf.org/html/rfc1035
-
-
-## Development
-
-```
-virtualenv virtualenv
-. ./virtualenv/bin/activate
-pip install -r ./requirements.txt
-```
-
-### Development within Docker
-
-To build a Docker container with dns-tool and start an interactive shell:
-
-```
-docker build . -t dns-tool && docker run -it -v $(pwd):/mnt dns-tool
-```
-
-This will create a container with Python 3 and a version of `dns-tool` installed via pip.
-This directory will be available in `/mnt/` in case you want to run the local copy for testing.
-
-
-### Installing the package locally
-
-If you want to test out the Pip installation, the package can be installed
-locally with this command:
-
-`sudo pip install -e .`
 
 
 ## Credits

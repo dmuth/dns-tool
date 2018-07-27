@@ -12,5 +12,8 @@ echo "# "
 echo "# If you want to do any development, just cd into /mnt/ and you can run dns-tool from there."
 echo "# "
 
-exec sh
+#
+# Run whatever was passed in
+#
+exec /app/dns-tool $@
 

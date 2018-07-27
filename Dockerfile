@@ -6,11 +6,16 @@
 #
 FROM alpine
 
-RUN apk update
+WORKDIR /app
 
-RUN apk add python3 git
+RUN apk add --no-cache python3 git
+
+ADD dns-tool /app/dns-tool
+ADD lib/ /app/lib/
 
 RUN pip3 install git+https://github.com/dmuth/dns-tool/
 
-ENTRYPOINT [ "/mnt/docker-entrypoint.sh" ]
+ADD docker-entrypoint.sh /app/
+
+ENTRYPOINT [ "/app/docker-entrypoint.sh" ]
 
